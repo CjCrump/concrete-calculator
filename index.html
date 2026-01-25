@@ -18,9 +18,12 @@
       <div class="buttons">
         <button class="btn active" data-shape="slab">Slab</button>
         <button class="btn" data-shape="footing">Footing</button>
-        <button class="btn" data-shape="wall">Wall</button>
+        <button class="btn" data-shape="wall">Wall / Column</button>
         <button class="btn" data-shape="curb">Curb</button>
+        <button class="btn" data-shape="approach">Approach</button>
+        <button class="btn" data-shape="column">Column (round)</button>
       </div>
+
     </header>
 
     <!-- INPUT CARD -->
@@ -74,7 +77,7 @@
         </div>
       </div>
 
-      <!-- WALL INPUTS -->
+      <!-- WALL / rectangular column INPUTS -->
       <div class="shape wall">
         <div class="row">
           <div>
@@ -92,19 +95,68 @@
         </div>
       </div>
       <!-- curb inputs -->
-    <div class="shape curb">
-        <label>Curb Type</label>
-        <select id="curb-type">
-        <option value="1.50">B6-18 (standard)</option>
-        <option value="1.10">B6-12</option>
-        <option value="0.85">B4-12</option>
-        <option value="2.25">Valley Gutter</option>
-    </select>
 
-  <label>Length (ft)</label>
-  <input id="curb-length" type="number" />
+<div class="shape curb">
+        <div class="stack">
+            <label>Curb Type</label>
+            <select id="curb-type">
+            <option value="1.50">B6-18 (standard)</option>
+            <option value="1.10">B6-12</option>
+            <option value="0.85">B4-12</option>
+            <option value="2.25">Valley Gutter</option>
+            </select>
+        </div>
+    
+    <div class="stack">
+            <label>Length (ft)</label>
+            <input id="curb-length" type="number" />
+    </div>
 </div>
- 
+
+<!-- APPROACH INPUTS (TRAPEZOID PRISM) -->
+<div class="shape approach">
+  <div class="stack">
+    <label>Width (ft)</label>
+    <input id="approach-width" type="number" />
+  </div>
+
+  <div class="stack">
+    <label>Length (ft)</label>
+    <input id="approach-length" type="number" />
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Top thickness (in)</label>
+      <input id="approach-top" type="number" />
+    </div>
+    <div>
+      <label>Bottom thickness (in)</label>
+      <input id="approach-bottom" type="number" />
+    </div>
+  </div>
+</div>
+
+<!-- CIRCULAR COLUMN INPUTS -->
+<div class="shape column">
+  <div class="row">
+    <div>
+      <label>Diameter (in)</label>
+      <input id="column-diameter" type="number" />
+    </div>
+    <div>
+      <label>Height (ft)</label>
+      <input id="column-height" type="number" />
+    </div>
+  </div>
+
+  <div class="stack">
+    <label>Quantity</label>
+    <input id="column-qty" type="number" value="1" />
+  </div>
+</div>
+
+
 
       <!-- COMMON SETTINGS -->
       <div class="row">

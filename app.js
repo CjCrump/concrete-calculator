@@ -120,6 +120,33 @@ function calculate() {
     cubicFeet = area * L;
   }
 
+  // ----- APPROACH (TRAPEZOID PRISM) -----
+if (currentShape === 'approach') {
+  const W = Number(document.getElementById('approach-width').value);
+  const L = Number(document.getElementById('approach-length').value);
+  const T1 = Number(document.getElementById('approach-top').value) / 12;
+  const T2 = Number(document.getElementById('approach-bottom').value) / 12;
+
+  if (!W || !L || !T1 || !T2) return resetCurrent();
+
+  const avgThickness = (T1 + T2) / 2;
+  cubicFeet = W * L * avgThickness;
+}
+
+// ----- CIRCULAR COLUMN -----
+if (currentShape === 'column') {
+  const D = Number(document.getElementById('column-diameter').value) / 12;
+  const H = Number(document.getElementById('column-height').value);
+  const Q = Number(document.getElementById('column-qty').value) || 1;
+
+  if (!D || !H || !Q) return resetCurrent();
+
+  const radius = D / 2;
+  const area = Math.PI * radius * radius;
+
+  cubicFeet = area * H * Q;
+}
+
   // Apply waste
   cubicFeet += cubicFeet * waste;
 

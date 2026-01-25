@@ -71,14 +71,18 @@ input {
   flex: 1;
 }
 
-/* ---------- BUTTONS ---------- */
+/* ---------- BUTTON GROUP ---------- */
+/* Wraps automatically as shapes increase */
+
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .btn {
-  flex: 1;
+  flex: 1 1 120px;   /* grow | shrink | minimum width */
+  min-height: 48px; /* thumb-friendly */
   padding: 14px;
   border-radius: 12px;
   border: none;
@@ -167,4 +171,19 @@ select {
   font-size: 1.1rem;
   border-radius: 12px;
   border: none;
+}
+
+/* ---------- STACKED INPUT GROUP ---------- */
+/* Used for single-column inputs like curb, gutter, ramps */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- LANDSCAPE / TABLET ---------- */
+@media (orientation: landscape) {
+  .buttons .btn {
+    flex: 1 1 160px;
+  }
 }
