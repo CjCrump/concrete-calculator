@@ -19,6 +19,7 @@
         <button class="btn active" data-shape="slab">Slab</button>
         <button class="btn" data-shape="footing">Footing</button>
         <button class="btn" data-shape="wall">Wall</button>
+        <button class="btn" data-shape="curb">Curb</button>
       </div>
     </header>
 
@@ -90,6 +91,20 @@
           </div>
         </div>
       </div>
+      <!-- curb inputs -->
+    <div class="shape curb">
+        <label>Curb Type</label>
+        <select id="curb-type">
+        <option value="1.50">B6-18 (standard)</option>
+        <option value="1.10">B6-12</option>
+        <option value="0.85">B4-12</option>
+        <option value="2.25">Valley Gutter</option>
+    </select>
+
+  <label>Length (ft)</label>
+  <input id="curb-length" type="number" />
+</div>
+ 
 
       <!-- COMMON SETTINGS -->
       <div class="row">

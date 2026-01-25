@@ -109,6 +109,16 @@ function calculate() {
     if (!L || !H || !T) return resetCurrent();
     cubicFeet = L * H * T;
   }
+  
+  // ----- CURB -----
+  if (currentShape === 'curb') {
+    const area = Number(document.getElementById('curb-type').value);
+    const L = Number(document.getElementById('curb-length').value);
+
+  if (!area || !L) return resetCurrent();
+
+    cubicFeet = area * L;
+  }
 
   // Apply waste
   cubicFeet += cubicFeet * waste;
