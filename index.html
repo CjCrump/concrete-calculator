@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concrete Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- APP WRAPPER -->
+  <div class="app">
+
+    <!-- HEADER / SHAPE SELECTOR -->
+    <header>
+      <h1>Concrete Calculator</h1>
+
+      <div class="buttons">
+        <button class="btn active" data-shape="slab">Slab</button>
+        <button class="btn" data-shape="footing">Footing</button>
+        <button class="btn" data-shape="wall">Wall</button>
+      </div>
+    </header>
+
+    <!-- INPUT CARD -->
+    <div class="card">
+
+      <!-- SLAB INPUTS -->
+      <div class="shape slab active">
+        <div class="row">
+          <div>
+            <label>Length (ft)</label>
+            <input id="slab-length" type="number" />
+          </div>
+          <div>
+            <label>Width (ft)</label>
+            <input id="slab-width" type="number" />
+          </div>
+          <div>
+            <label>Thickness (in)</label>
+            <input id="slab-thickness" type="number" />
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTING INPUTS -->
+      <div class="shape footing">
+        <div class="row">
+          <div>
+            <label>Length per run (ft)</label>
+            <input id="footing-length" type="number" />
+          </div>
+          <div>
+            <label>Width (in)</label>
+            <input id="footing-width" type="number" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Depth (in)</label>
+            <input id="footing-depth" type="number" />
+          </div>
+          <div class="toggle-wrap">
+            <label>Continuous</label>
+            <button id="continuousToggle" class="toggle">OFF</button>
+          </div>
+        </div>
+
+        <div id="runsWrap" style="display:none;">
+          <label>Number of runs</label>
+          <input id="footing-runs" type="number" value="1" />
+        </div>
+      </div>
+
+      <!-- WALL INPUTS -->
+      <div class="shape wall">
+        <div class="row">
+          <div>
+            <label>Length (ft)</label>
+            <input id="wall-length" type="number" />
+          </div>
+          <div>
+            <label>Height (ft)</label>
+            <input id="wall-height" type="number" />
+          </div>
+          <div>
+            <label>Thickness (in)</label>
+            <input id="wall-thickness" type="number" />
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMON SETTINGS -->
+      <div class="row">
+        <div>
+          <label>Waste %</label>
+          <input id="waste" type="number" value="10" />
+        </div>
+      </div>
+
+      <label>Truck Capacity (yd³)</label>
+      <div class="buttons">
+        <button class="btn active" data-cap="9">9 yd³</button>
+        <button class="btn" data-cap="10">10 yd³</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results">
+      <div class="results-card">
+        <div class="muted">Current item</div>
+        <div class="yards" id="currentYards">0.00 yd³</div>
+
+        <button class="btn" id="addItemBtn">➕ Add to pour</button>
+
+        <hr />
+
+        <div class="muted">Total pour</div>
+        <div class="yards" id="totalYards">0.00 yd³</div>
+        <div class="trucks" id="trucks">0 trucks</div>
+        <div class="muted" id="remainder"></div>
+
+        <button class="btn" id="clearPourBtn">🗑 Clear pour</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+

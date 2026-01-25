@@ -1,0 +1,162 @@
+/* ---------- COLOR VARIABLES ---------- */
+:root {
+  --bg: #0f172a;
+  --card: #111827;
+  --accent: #22c55e;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+}
+
+/* ---------- RESET / BASE ---------- */
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- APP CONTAINER ---------- */
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- HEADER ---------- */
+header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+/* ---------- CARDS ---------- */
+.card {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- FORM ELEMENTS ---------- */
+label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+}
+
+/* ---------- FLEX ROWS ---------- */
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row > div {
+  flex: 1;
+}
+
+/* ---------- BUTTONS ---------- */
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  background: #1f2933;
+  color: var(--text);
+}
+
+.btn.active {
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 600;
+}
+
+/* ---------- SHAPE VISIBILITY ---------- */
+.shape {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shape.active {
+  display: flex;
+}
+
+/* ---------- TOGGLE ---------- */
+.toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.toggle {
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #1f2933;
+  color: var(--text);
+}
+
+.toggle.on {
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 600;
+}
+
+/* ---------- RESULTS ---------- */
+.results {
+  position: sticky;
+  bottom: 0;
+}
+
+.results-card {
+  background: #020617;
+  padding: 16px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.yards {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.trucks {
+  font-size: 1.1rem;
+}
+
+.muted {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.results-card hr {
+  border: none;
+  border-top: 1px solid #1f2933;
+  margin: 8px 0;
+}
