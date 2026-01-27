@@ -20,6 +20,26 @@
         <button class="btn" onclick="location.href='settings-trucks.html'">Truck Defaults</button>
       </div>
 
+     <!-- =======================================================
+     FEATURE TOGGLES (Easy Mode)
+     - Entire row is tappable
+     - Big toggle button shows: ON / OFF (with a big X when OFF)
+======================================================= -->
+<button id="enableBagsRow" class="big-toggle-row" type="button" aria-pressed="false">
+  <div class="big-toggle-text">
+    <div class="big-toggle-title">Enable Bags (Concrete)</div>
+    <div class="muted">Show bag size + bag count estimate on Calculator.</div>
+  </div>
+
+  <!-- Big pill toggle (visual only; JS updates text + state) -->
+  <div id="enableBagsPill" class="big-toggle-pill off">
+    <span id="enableBagsPillLabel" class="big-toggle-pill-label">OFF</span>
+    <span id="enableBagsPillIcon" class="big-toggle-pill-icon">✕</span>
+  </div>
+</button>
+
+<button class="btn" id="saveFeaturesBtn">Save</button>
+
       <hr />
 
       <button class="btn" id="resetBtn">Reset to Jobsite Defaults</button>
@@ -40,3 +60,4 @@
   </script>
 </body>
 </html>
+

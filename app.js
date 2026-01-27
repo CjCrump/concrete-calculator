@@ -1,23 +1,79 @@
 /* =====================================================
-   STATE
+   GlovesON FieldCalc — Calculator (app.js)
+   -----------------------------------------------------
+   GOAL: Mobile-first “jobsite tool” behavior.
+
+   Key idea:
+   - This calculator is for ORDERING.
+   - Converter is for BUILDING precision.
+
+   This file handles:
+   - Shape volume -> cubic yards
+   - Pour totals (sum of added items)
+   - Truck loads + remainder
+   - Material tons estimate
+   - Settings responsiveness (no swipe refresh)
+   - Optional (feature-toggled): Concrete Bags helper
+===================================================== */
+
+/* =====================================================
+   1) STATE (app runtime)
 ===================================================== */
 let currentShape = 'slab';
-let truckCapacity = 9;
-let continuous = false;
+let truckCapacity = 9;        // default if settings are missing
+let continuous = false;       // continuous footing runs mode
 
-let currentItemYards = 0;
-let totalYards = 0;
+let currentItemYards = 0;     // current shape yards
+let totalYards = 0;           // poured total yards (truth source)
 
-let material = 'concrete';
-let roundUpLoads = true;
+let material = 'concrete';    // 'concrete' | 'rock' | 'sand' | 'topsoil' | 'asphalt'
+let roundUpLoads = true;      // non-concrete rounding if “Ask Each Time” is enabled
 
-// Truck Defaults -> Over-Order %
-// Bulk materials (rock/sand/topsoil/asphalt) often need a buffer to avoid coming up short.
-// We DO NOT apply this to concrete here (concrete already rounds up loads).
+// Truck Defaults -> Over-Order % (materials only)
+// Example: 10 yd of rock + 5% buffer => display 10.5 yd for ordering
 let overOrderPct = 0;
 
+/* =====================================================
+   2) BAG MIX (Concrete-only helper)
+   -----------------------------------------------------
+   Why:
+   - Sometimes a crew is mixing bags, not ordering ready-mix trucks.
+   - We keep this hidden unless user enables it in Settings.
+===================================================== */
+
+// Bag selection (lbs). Default is 80 (common on jobsite).
+let bagSizeLbs = 80;
+
+// Feature toggle pulled from Settings:
+// If false, Bags UI stays hidden even when Concrete is selected.
+let bagsEnabled = false;
+
+// Approximate yield per bag (cubic feet of concrete per bag)
+// NOTE: These are commonly-used estimates, not lab-certified.
+const BAG_YIELD_FT3 = {
+  40: 0.30,
+  50: 0.375,
+  60: 0.45,
+  80: 0.60,
+  90: 0.675
+};
+
+// -----------------------------------------------------
+// FUTURE (Pro-ready hook):
+// Admixtures toggle & dosage presets.
+// For MVP launch, the UI is hidden in index.html.
+// We keep the variables + constants so re-enabling later is easy.
+// -----------------------------------------------------
+let admixturesOn = false;
+const ADMIX_OZ_PER_YD3 = 16; // placeholder default dosage
+const OZ_PER_GAL = 128;
+
+/* =====================================================
+   3) MATERIAL DENSITIES (tons per cubic yard)
+   -----------------------------------------------------
+   These are estimates. Moisture + gradation changes tonnage.
+===================================================== */
 const densityTonsPerYd = {
-  // NOTE: These are estimates. Moisture/gradation/compaction can change real-world tonnage.
   concrete: null,
   rock: 1.35,
   sand: 1.30,
@@ -26,24 +82,21 @@ const densityTonsPerYd = {
 };
 
 /* =====================================================
-   SETTINGS (LOAD DEFAULTS)
-   - settings-store.js writes to localStorage
-   - this file reads settings to change behavior WITHOUT refresh
+   4) SETTINGS (load once + re-sync on return)
 ===================================================== */
 const S = window.FieldCalcSettings ? FieldCalcSettings.load() : null;
 
+// If settings exist, override defaults.
 if (S) {
-  // Truck default
   truckCapacity = Number(S.trucks.defaultCapacity) || truckCapacity;
-
-  // Truck buffer (materials only)
   overOrderPct = Number(S.trucks.overOrderPct ?? 0);
 
-  // Load rounding default behavior
+  // Feature toggles
+  bagsEnabled = S.features?.enableBags === true;
+
   if (S.rounding.loadsDefault === 'up') roundUpLoads = true;
   if (S.rounding.loadsDefault === 'down') roundUpLoads = false;
 
-  // Pull densities from settings (future-proof)
   densityTonsPerYd.rock = Number(S.materials.rock) || densityTonsPerYd.rock;
   densityTonsPerYd.sand = Number(S.materials.sand) || densityTonsPerYd.sand;
   densityTonsPerYd.topsoil = Number(S.materials.topsoil) || densityTonsPerYd.topsoil;
@@ -51,57 +104,46 @@ if (S) {
 }
 
 // askLoads controls whether the per-calc rounding toggle appears.
-// If Settings says Always Up/Down, we hide the toggle (settings are authoritative).
+// If settings lock Always Up/Down, we hide the toggle (settings authoritative).
 let askLoads = S ? (S.rounding.loadsDefault === 'ask') : true;
 
 /**
- * Re-reads settings from localStorage and applies them to our runtime state.
- * Called when returning from Settings (visibility/pageshow).
+ * Re-reads settings from storage and applies to runtime state.
+ * Called when returning from Settings via onReturnSync().
  */
 function applySettingsToState() {
   const s = window.FieldCalcSettings ? FieldCalcSettings.load() : null;
   if (!s) return;
 
-  // 1) Truck default
   truckCapacity = Number(s.trucks.defaultCapacity) || truckCapacity;
-
-  // 1b) Truck buffer (materials only)
   overOrderPct = Number(s.trucks.overOrderPct ?? 0);
 
-  // 2) Load rounding default
+  // Feature toggles
+  bagsEnabled = s.features?.enableBags === true;
+
   if (s.rounding.loadsDefault === 'up') roundUpLoads = true;
   if (s.rounding.loadsDefault === 'down') roundUpLoads = false;
 
   askLoads = (s.rounding.loadsDefault === 'ask');
 
-  // 3) Densities
   densityTonsPerYd.rock = Number(s.materials.rock) || densityTonsPerYd.rock;
   densityTonsPerYd.sand = Number(s.materials.sand) || densityTonsPerYd.sand;
   densityTonsPerYd.topsoil = Number(s.materials.topsoil) || densityTonsPerYd.topsoil;
   densityTonsPerYd.asphalt = Number(s.materials.asphalt) || densityTonsPerYd.asphalt;
 }
 
-/**
- * UI helper: ensures the active truck button matches the current truckCapacity state.
- */
-function syncTruckCapacityButtons() {
-  document.querySelectorAll('[data-cap]').forEach(b => b.classList.remove('active'));
-  const btn = document.querySelector(`[data-cap="${truckCapacity}"]`);
-  if (btn) btn.classList.add('active');
-}
-
 /* =====================================================
-   ELEMENT REFERENCES
+   5) DOM REFERENCES
 ===================================================== */
 const currentYardsEl = document.getElementById('currentYards');
 const totalYardsEl = document.getElementById('totalYards');
 const trucksEl = document.getElementById('trucks');
 const remainderEl = document.getElementById('remainder');
+const tonsLineEl = document.getElementById('tonsLine');
 
 const materialSelect = document.getElementById('material');
 const roundingWrap = document.getElementById('roundingWrap');
 const roundingToggle = document.getElementById('roundingToggle');
-const tonsLineEl = document.getElementById('tonsLine');
 
 const addItemBtn = document.getElementById('addItemBtn');
 const clearPourBtn = document.getElementById('clearPourBtn');
@@ -110,27 +152,146 @@ const continuousToggle = document.getElementById('continuousToggle');
 const runsWrap = document.getElementById('runsWrap');
 const runsInput = document.getElementById('footing-runs');
 
-/* =====================================================
-   MATERIAL / ROUNDING (UI behavior)
-===================================================== */
-function updateShapeButtonsForMaterial() {
-  const isConcrete = material === 'concrete';
+const wasteWrap = document.getElementById('wasteWrap');
 
-  // Show/hide rounding toggle:
-  // - Concrete: hidden (always rounds up loads)
-  // - Materials: shown ONLY if Settings says "Ask Each Time"
+// Bags UI
+const bagsWrap = document.getElementById('bagsWrap');
+const bagSizeSelect = document.getElementById('bagSize');
+const bagsLineEl = document.getElementById('bagsLine');
+
+// Admixtures UI is currently hidden in index.html for MVP launch.
+// Keeping these refs reserved so we can re-enable later without refactoring.
+const admixtureToggle = document.getElementById('admixtureToggle');
+const admixtureLineEl = document.getElementById('admixtureLine');
+// =====================================================
+// EASY MODE PICKER (full-screen forced selection)
+// - Material picker (always available)
+// - Bag size picker (only when Bags enabled + Concrete)
+// =====================================================
+const materialPickerBtn = document.getElementById('materialPickerBtn');
+
+const pickerOverlay = document.getElementById('pickerOverlay');
+const pickerTitle = document.getElementById('pickerTitle');
+const pickerOptions = document.getElementById('pickerOptions');
+
+// -----------------------------------------------------
+// Keep the visible "Material" easy-mode button in sync
+// with the hidden <select> value.
+// -----------------------------------------------------
+function syncMaterialButtonLabel() {
+  if (!materialPickerBtn || !materialSelect) return;
+
+  const labelMap = {
+    concrete: 'Concrete',
+    rock: 'Rock',
+    sand: 'Sand',
+    topsoil: 'Topsoil',
+    asphalt: 'Asphalt'
+  };
+
+  materialPickerBtn.textContent = labelMap[materialSelect.value] || 'Select Material';
+}
+
+// Helper: open modal and force selection
+function openPicker({ title, options, onPick }) {
+  if (!pickerOverlay || !pickerTitle || !pickerOptions) return;
+
+  pickerTitle.textContent = title;
+  pickerOptions.innerHTML = '';
+
+  options.forEach(opt => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn picker-opt';
+    b.textContent = opt.label;
+
+    b.addEventListener('click', () => {
+      onPick(opt.value, opt.label);
+      pickerOverlay.classList.add('hidden'); // close ONLY after selection
+    });
+
+    pickerOptions.appendChild(b);
+  });
+
+  pickerOverlay.classList.remove('hidden');
+}
+
+// MATERIAL: big button opens modal
+materialPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Material',
+    options: [
+      { value: 'concrete', label: 'Concrete' },
+      { value: 'rock', label: 'Rock' },
+      { value: 'sand', label: 'Sand' },
+      { value: 'topsoil', label: 'Topsoil' },
+      { value: 'asphalt', label: 'Asphalt' }
+    ],
+    onPick: (value, label) => {
+      // Sync hidden <select> so existing logic stays unchanged
+      materialSelect.value = value;
+        material = value;
+
+      // single source of truth for label rendering
+      syncMaterialButtonLabel();
+
+      updateShapeButtonsForMaterial();
+      calculate();
+      updateTotals();
+    }
+  });
+});
+
+/* =====================================================
+   6) UI HELPERS
+===================================================== */
+
+/**
+ * Highlight correct truck button based on truckCapacity.
+ * Called on load AND when settings change.
+ */
+function syncTruckCapacityButtons() {
+  document.querySelectorAll('[data-cap]').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-cap="${truckCapacity}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+/**
+ * Material rules:
+ * - Concrete shows full shape set + hides tons
+ * - Materials hide wall/curb + show tons
+ * - Rounding toggle only appears when “Ask Each Time” is enabled in Settings
+ * - Bags helper appears only when Concrete AND enabled in Settings
+ */
+function updateShapeButtonsForMaterial() {
+  // -----------------------------------------------------
+  // IMPORTANT: compute these fresh every time this runs
+  // -----------------------------------------------------
+  const isConcrete = (material === 'concrete');
+  const wasteAllowed = (material === 'concrete' || material === 'asphalt');
+
+  // Waste UI only for Concrete + Asphalt
+  if (wasteWrap) wasteWrap.style.display = wasteAllowed ? 'flex' : 'none';
+
+  // Loads rounding toggle only for NON-concrete materials (and only if Ask Each Time)
   if (roundingWrap) roundingWrap.style.display = (!isConcrete && askLoads) ? 'flex' : 'none';
 
-  // If the toggle is visible, keep its text + style in sync with roundUpLoads
+
   if (roundingToggle && !isConcrete && askLoads) {
     roundingToggle.textContent = roundUpLoads ? 'ROUND UP' : 'ROUND DOWN';
     roundingToggle.classList.toggle('on', roundUpLoads);
   }
 
-  // Tons display: only for non-concrete materials
+  // --- Tons line (materials only) ---
   if (tonsLineEl) tonsLineEl.style.display = isConcrete ? 'none' : 'block';
 
-  // Hide shapes not used for truck materials (keeps UI tight)
+  // --- Bags visibility rule (single source of truth) ---
+  // Only show when:
+  // 1) Concrete is selected AND
+  // 2) Settings.features.enableBags is true
+  if (bagsWrap) bagsWrap.classList.toggle('hidden', !isConcrete || !bagsEnabled);
+
+  // --- Hide certain shapes for truck materials ---
   const hideForTruck = ['wall', 'curb'];
   document.querySelectorAll('[data-shape]').forEach(btn => {
     const shape = btn.getAttribute('data-shape');
@@ -138,18 +299,25 @@ function updateShapeButtonsForMaterial() {
     btn.style.display = shouldHide ? 'none' : '';
   });
 
-  // If the current shape is hidden, fall back to slab
+  // If the current shape becomes hidden, fall back to slab
   if (!isConcrete && (currentShape === 'wall' || currentShape === 'curb')) {
     currentShape = 'slab';
+
     document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
-    const slabBtn = document.querySelector('[data-shape="slab"]');
-    if (slabBtn) slabBtn.classList.add('active');
+    document.querySelector('[data-shape="slab"]')?.classList.add('active');
+
     continuous = false;
-    if (continuousToggle) continuousToggle.textContent = 'Off';
+    if (continuousToggle) {
+      continuousToggle.textContent = 'OFF';
+      continuousToggle.classList.remove('on');
+    }
     if (runsWrap) runsWrap.style.display = 'none';
+
+    document.querySelectorAll('.shape').forEach(s => s.classList.remove('active'));
+    document.querySelector('.slab')?.classList.add('active');
   }
 
-  // Relabel shapes for truck material mode (Tier A + B)
+  // --- Relabel shapes in materials mode ---
   const labelsConcrete = {
     slab: 'Slab',
     footing: 'Footing',
@@ -168,58 +336,51 @@ function updateShapeButtonsForMaterial() {
 
   document.querySelectorAll('[data-shape]').forEach(btn => {
     const shape = btn.getAttribute('data-shape');
-    if (material === 'concrete') {
+    if (isConcrete) {
       if (labelsConcrete[shape]) btn.textContent = labelsConcrete[shape];
     } else {
       if (labelsTruck[shape]) btn.textContent = labelsTruck[shape];
-      else if (labelsConcrete[shape]) btn.textContent = labelsConcrete[shape]; // fallback for any visible shapes
+      else if (labelsConcrete[shape]) btn.textContent = labelsConcrete[shape];
     }
   });
 }
 
-if (materialSelect) {
-  materialSelect.addEventListener('change', () => {
-    material = materialSelect.value;
-    updateShapeButtonsForMaterial();
-    calculate();
-    updateTotals();
-  });
-}
-
-if (roundingToggle) {
-  roundingToggle.addEventListener('click', () => {
-    roundUpLoads = !roundUpLoads;
-    roundingToggle.textContent = roundUpLoads ? 'ROUND UP' : 'ROUND DOWN';
-    roundingToggle.classList.toggle('on', roundUpLoads);
-    updateTotals();
-  });
-}
-
-// Initialize material-specific UI on first load
-updateShapeButtonsForMaterial();
-
 /* =====================================================
-   SHAPE SWITCHING
+   7) EVENT LISTENERS
 ===================================================== */
+
+materialSelect?.addEventListener('change', () => {
+  material = materialSelect.value;
+
+  // Keep big easy-mode button text correct
+  syncMaterialButtonLabel();
+
+  updateShapeButtonsForMaterial();
+  calculate();
+  updateTotals();
+});
+
+roundingToggle?.addEventListener('click', () => {
+  roundUpLoads = !roundUpLoads;
+  roundingToggle.textContent = roundUpLoads ? 'ROUND UP' : 'ROUND DOWN';
+  roundingToggle.classList.toggle('on', roundUpLoads);
+  updateTotals();
+});
+
 document.querySelectorAll('[data-shape]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
     currentShape = btn.dataset.shape;
-
     document.querySelectorAll('.shape').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.${currentShape}`).classList.add('active');
+    document.querySelector(`.${currentShape}`)?.classList.add('active');
 
-    // Keep the UI "live" while switching shapes
     calculate();
     updateTotals();
   });
 });
 
-/* =====================================================
-   TRUCK CAPACITY
-===================================================== */
 document.querySelectorAll('[data-cap]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('[data-cap]').forEach(b => b.classList.remove('active'));
@@ -230,161 +391,182 @@ document.querySelectorAll('[data-cap]').forEach(btn => {
   });
 });
 
-/* =====================================================
-   CONTINUOUS FOOTING TOGGLE
-===================================================== */
-continuousToggle.addEventListener('click', () => {
+continuousToggle?.addEventListener('click', () => {
   continuous = !continuous;
 
   continuousToggle.textContent = continuous ? 'ON' : 'OFF';
   continuousToggle.classList.toggle('on', continuous);
-  runsWrap.style.display = continuous ? 'block' : 'none';
+  if (runsWrap) runsWrap.style.display = continuous ? 'block' : 'none';
 
-  if (!continuous) runsInput.value = 1;
+  if (!continuous && runsInput) runsInput.value = 1;
 
-  // Keep the UI "live" after toggling
   calculate();
   updateTotals();
 });
 
-/* =====================================================
-   INPUT LISTENERS
-   - Any input changes should update both the "current item"
-     and the "pour totals" card so the app feels responsive.
-===================================================== */
 document.querySelectorAll('input').forEach(input =>
   input.addEventListener('input', () => {
     calculate();
-    updateTotals(); // keeps bottom card responsive
+    updateTotals();
   })
 );
 
+// Bag size dropdown (only matters if bags are enabled)
+bagSizeSelect?.addEventListener('change', () => {
+  bagSizeLbs = Number(bagSizeSelect.value) || 80;
+  updateTotals();
+});
+
+// -----------------------------------------------------
+// FUTURE (Pro-ready hook):
+// Admixtures toggle listener.
+// UI is hidden for MVP launch, so we comment this out for now.
+// -----------------------------------------------------
+/*
+admixtureToggle?.addEventListener('click', () => {
+  admixturesOn = !admixturesOn;
+
+  admixtureToggle.textContent = admixturesOn ? 'ON' : 'OFF';
+  admixtureToggle.classList.toggle('on', admixturesOn);
+
+  updateTotals();
+});
+*/
+
+addItemBtn?.addEventListener('click', () => {
+  if (!currentItemYards) return;
+  totalYards += currentItemYards;
+  updateTotals();
+});
+
+clearPourBtn?.addEventListener('click', () => {
+  totalYards = 0;
+  updateTotals();
+});
+
 /* =====================================================
-   MAIN CALCULATION (current item only)
+   8) CALCULATIONS
 ===================================================== */
+
+function resetCurrent() {
+  currentItemYards = 0;
+  if (currentYardsEl) currentYardsEl.textContent = '0.00 yd³';
+}
+
 function calculate() {
-  const waste = Number(document.getElementById('waste').value) / 100;
+    // =====================================================
+  // Waste rule (lock-in):
+  // - Waste applies to CONCRETE and ASPHALT only
+  // - Rock / sand / topsoil should NOT add waste by default
+  //   (those are usually handled via over-order % / buffer instead)
+  // =====================================================
+  const wasteAllowed = (material === 'concrete' || material === 'asphalt');
+
+  const wastePctRaw = Number(document.getElementById('waste')?.value) || 0;
+  const wastePct = wasteAllowed ? wastePctRaw : 0;
+  const waste = wastePct / 100;
+
+
   let cubicFeet = 0;
 
-  // ----- SLAB -----
   if (currentShape === 'slab') {
-    const L = Number(document.getElementById('slab-length').value);
-    const W = Number(document.getElementById('slab-width').value);
-    const T = Number(document.getElementById('slab-thickness').value) / 12;
+    const L = Number(document.getElementById('slab-length')?.value);
+    const W = Number(document.getElementById('slab-width')?.value);
+    const T = Number(document.getElementById('slab-thickness')?.value) / 12;
     if (!L || !W || !T) return resetCurrent();
     cubicFeet = L * W * T;
   }
 
-  // ----- FOOTING -----
   if (currentShape === 'footing') {
-    const L = Number(document.getElementById('footing-length').value);
-    const W = Number(document.getElementById('footing-width').value) / 12;
-    const D = Number(document.getElementById('footing-depth').value) / 12;
-    const runs = continuous ? Number(runsInput.value) || 1 : 1;
+    const L = Number(document.getElementById('footing-length')?.value);
+    const W = Number(document.getElementById('footing-width')?.value) / 12;
+    const D = Number(document.getElementById('footing-depth')?.value) / 12;
+    const runs = continuous ? (Number(runsInput?.value) || 1) : 1;
     if (!L || !W || !D) return resetCurrent();
     cubicFeet = (L * runs) * W * D;
   }
 
-  // ----- WALL -----
   if (currentShape === 'wall') {
-    const L = Number(document.getElementById('wall-length').value);
-    const H = Number(document.getElementById('wall-height').value);
-    const T = Number(document.getElementById('wall-thickness').value) / 12;
+    const L = Number(document.getElementById('wall-length')?.value);
+    const H = Number(document.getElementById('wall-height')?.value);
+    const T = Number(document.getElementById('wall-thickness')?.value) / 12;
     if (!L || !H || !T) return resetCurrent();
     cubicFeet = L * H * T;
   }
 
-  // ----- CURB -----
   if (currentShape === 'curb') {
-    const area = Number(document.getElementById('curb-type').value);
-    const L = Number(document.getElementById('curb-length').value);
-
+    const area = Number(document.getElementById('curb-type')?.value);
+    const L = Number(document.getElementById('curb-length')?.value);
     if (!area || !L) return resetCurrent();
-
     cubicFeet = area * L;
   }
 
-  // ----- DITCH / TAPER (TRAPEZOID PRISM) -----
   if (currentShape === 'approach') {
-    const W = Number(document.getElementById('approach-width').value);
-    const L = Number(document.getElementById('approach-length').value);
-    const T1 = Number(document.getElementById('approach-top').value) / 12;
-    const T2 = Number(document.getElementById('approach-bottom').value) / 12;
-
+    const W = Number(document.getElementById('approach-width')?.value);
+    const L = Number(document.getElementById('approach-length')?.value);
+    const T1 = Number(document.getElementById('approach-top')?.value) / 12;
+    const T2 = Number(document.getElementById('approach-bottom')?.value) / 12;
     if (!W || !L || !T1 || !T2) return resetCurrent();
-
     const avgThickness = (T1 + T2) / 2;
     cubicFeet = W * L * avgThickness;
   }
 
-  // ----- CIRCULAR COLUMN -----
   if (currentShape === 'column') {
-    const D = Number(document.getElementById('column-diameter').value) / 12;
-    const H = Number(document.getElementById('column-height').value);
-    const Q = Number(document.getElementById('column-qty').value) || 1;
-
+    const D = Number(document.getElementById('column-diameter')?.value) / 12;
+    const H = Number(document.getElementById('column-height')?.value);
+    const Q = Number(document.getElementById('column-qty')?.value) || 1;
     if (!D || !H || !Q) return resetCurrent();
-
     const radius = D / 2;
     const area = Math.PI * radius * radius;
-
     cubicFeet = area * H * Q;
   }
 
-  // Apply waste
   cubicFeet += cubicFeet * waste;
 
-  // Convert to yards
   currentItemYards = cubicFeet / 27;
-  currentYardsEl.textContent = `${currentItemYards.toFixed(2)} yd³`;
+  if (currentYardsEl) currentYardsEl.textContent = `${currentItemYards.toFixed(2)} yd³`;
 }
 
-/* =====================================================
-   TOTAL / TRUCK CALCULATION (pour totals)
-   IMPORTANT:
-   - totalYards = what the user actually added (truth)
-   - displayYards = optional buffered yards for materials ordering
-===================================================== */
 function updateTotals() {
   const isConcrete = material === 'concrete';
 
-  // Apply buffer ONLY for non-concrete materials
-  // This is the "ordering" safety factor (ex: 5% extra rock).
+  // Materials-only buffer
   const bufferMultiplier = (!isConcrete && overOrderPct > 0)
     ? (1 + (overOrderPct / 100))
     : 1;
 
-  // displayYards is what we show + use for truck math
   const displayYards = totalYards * bufferMultiplier;
 
-  totalYardsEl.textContent = `${displayYards.toFixed(2)} yd³`;
+  if (totalYardsEl) totalYardsEl.textContent = `${displayYards.toFixed(2)} yd³`;
 
   if (displayYards === 0) {
-    trucksEl.textContent = '0 trucks';
-    remainderEl.textContent = '';
+    if (trucksEl) trucksEl.textContent = '0 trucks';
+    if (remainderEl) remainderEl.textContent = '';
     if (tonsLineEl) tonsLineEl.textContent = '';
+
+    if (bagsLineEl) bagsLineEl.textContent = '';
+    if (admixtureLineEl) admixtureLineEl.textContent = '';
     return;
   }
 
   const rawLoads = displayYards / truckCapacity;
 
-  // Concrete: always round up (ordering behavior)
-  // Materials: user-controlled rounding (unless Settings locks it)
   const loads = isConcrete
     ? Math.ceil(rawLoads)
     : (roundUpLoads ? Math.ceil(rawLoads) : Math.floor(rawLoads));
 
   const remainder = displayYards % truckCapacity;
 
-  trucksEl.textContent = `${loads} trucks`;
+  if (trucksEl) trucksEl.textContent = `${loads} trucks`;
 
-  if (!isConcrete && !roundUpLoads && remainder) {
-    remainderEl.textContent = `Unassigned: ${remainder.toFixed(2)} yd³`;
-  } else {
-    remainderEl.textContent = remainder ? `Last load: ${remainder.toFixed(2)} yd³` : '';
+  if (remainderEl) {
+    if (!isConcrete && !roundUpLoads && remainder) {
+      remainderEl.textContent = `Unassigned: ${remainder.toFixed(2)} yd³`;
+    } else {
+      remainderEl.textContent = remainder ? `Last load: ${remainder.toFixed(2)} yd³` : '';
+    }
   }
 
-  // Tons estimate for non-concrete materials (uses buffered displayYards)
   const density = densityTonsPerYd[material];
   if (tonsLineEl) {
     if (!isConcrete && density) {
@@ -394,36 +576,51 @@ function updateTotals() {
       tonsLineEl.textContent = '';
     }
   }
+
+  // =====================================================
+  // Bags helper (only if enabled + concrete)
+  // =====================================================
+  if (isConcrete && bagsEnabled) {
+    const yd3 = Number(totalYards) || 0;
+
+    if (bagsLineEl) {
+      if (yd3 <= 0) {
+        bagsLineEl.textContent = '';
+      } else {
+        const ft3 = yd3 * 27;
+        const yieldFt3 = BAG_YIELD_FT3[bagSizeLbs] || BAG_YIELD_FT3[80];
+        const bags = Math.ceil(ft3 / yieldFt3);
+        bagsLineEl.textContent = `Bag mix estimate: ~${bags} bags (${bagSizeLbs} lb)`;
+      }
+    }
+
+    // -----------------------------------------------------
+    // FUTURE (Pro-ready hook): Admixture estimate output
+    // Keeping the code parked for later.
+    // -----------------------------------------------------
+    /*
+    if (admixtureLineEl) {
+      if (!admixturesOn || yd3 <= 0) {
+        admixtureLineEl.textContent = '';
+      } else {
+        const totalOz = yd3 * ADMIX_OZ_PER_YD3;
+        const gallons = totalOz / OZ_PER_GAL;
+        admixtureLineEl.textContent =
+          `Admixture estimate: ~${totalOz.toFixed(0)} oz (${gallons.toFixed(2)} gal)`;
+      }
+    }
+    */
+  } else {
+    // Either:
+    // - not concrete, OR
+    // - bags feature disabled in Settings
+    if (bagsLineEl) bagsLineEl.textContent = '';
+    if (admixtureLineEl) admixtureLineEl.textContent = '';
+  }
 }
 
 /* =====================================================
-   BUTTON ACTIONS
-===================================================== */
-addItemBtn.addEventListener('click', () => {
-  if (!currentItemYards) return;
-  totalYards += currentItemYards;
-  updateTotals();
-});
-
-clearPourBtn.addEventListener('click', () => {
-  totalYards = 0;
-  updateTotals();
-});
-
-/* =====================================================
-   HELPERS
-===================================================== */
-function resetCurrent() {
-  currentItemYards = 0;
-  currentYardsEl.textContent = '0.00 yd³';
-}
-
-/* =====================================================
-   SYNC SETTINGS (no swipe refresh)
-   We sync when returning from Settings using:
-   - visibilitychange
-   - pageshow (bfcache restore on mobile)
-   - storage (optional multi-tab)
+   9) SETTINGS RESPONSIVENESS (no swipe refresh)
 ===================================================== */
 function onReturnSync(syncFn) {
   document.addEventListener('visibilitychange', () => {
@@ -439,10 +636,18 @@ function onReturnSync(syncFn) {
 
 function syncCalculatorFromSettings() {
   applySettingsToState();
+  syncMaterialButtonLabel();
   syncTruckCapacityButtons();
   updateShapeButtonsForMaterial();
   calculate();
   updateTotals();
 }
 
-onReturnSync(syncCalculatorFromSettings);
+/* =====================================================
+   10) INITIAL BOOTSTRAP
+===================================================== */
+syncMaterialButtonLabel();
+updateShapeButtonsForMaterial();
+syncTruckCapacityButtons();
+calculate();
+updateTotals();

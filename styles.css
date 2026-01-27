@@ -271,3 +271,114 @@ input::placeholder { color: rgba(156,163,175,0.7); }
   .btn { flex: 1 1 160px; }
   header h1 { font-size: 1.5rem; }
 }
+
+/* =========================================================
+   EASY MODE: Big Toggle Row
+   - Designed for older users
+   - Large touch target
+   - Clear ON/OFF feedback
+========================================================= */
+
+.big-toggle-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+  padding: 16px 14px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.03);
+  text-align: left;
+
+  /* Button reset */
+  cursor: pointer;
+}
+
+.big-toggle-row:active {
+  transform: scale(0.99);
+}
+
+.big-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.big-toggle-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* Big pill toggle */
+.big-toggle-pill {
+  min-width: 92px;
+  height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 0 14px;
+  border-radius: 999px;
+
+  font-weight: 800;
+  font-size: 14px;
+
+  border: 1px solid rgba(255,255,255,0.18);
+  user-select: none;
+}
+
+.big-toggle-pill-icon {
+  font-size: 18px; /* “big ol X” */
+  line-height: 1;
+}
+
+/* States */
+.big-toggle-pill.off {
+  opacity: 0.95;
+}
+
+.big-toggle-pill.on {
+  opacity: 1;
+}
+
+/* Easy-mode full screen picker (Material / future Bag Size / future lists) */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+.picker-sheet {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  background: #0b1220;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 14px;
+}
+.picker-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.picker-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.picker-opt {
+  min-height: 60px;
+  font-size: 1.15rem;
+  font-weight: 900;
+}

@@ -24,6 +24,15 @@
       sand: 1.30,
       topsoil: 0.90,
       asphalt: 1.25
+    },
+
+    // ------------------------------------------------------
+    // FEATURES (simple on/off switches for optional tools)
+    // Why: lets us ship a clean MVP now, then add "packs" later
+    // without changing the settings structure.
+    // ------------------------------------------------------
+    features: {
+      enableBags: false // OFF by default until user enables in Settings
     }
   };
 
@@ -56,10 +65,8 @@
 
   function resetSettings() {
     saveSettings(structuredClone(defaults));
-    return loadSettings();
   }
 
-  // expose globally (no modules needed)
   window.FieldCalcSettings = {
     KEY,
     defaults,
