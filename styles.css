@@ -1,29 +1,46 @@
-/* ---------- COLOR VARIABLES ---------- */
+/* =========================================================
+   GlovesON FieldCalc — Mobile-First Styles
+   Goal: thumb-friendly, consistent spacing, no overlap issues
+   ========================================================= */
+
+/* ---------- THEME ---------- */
 :root {
   --bg: #0f172a;
   --card: #111827;
+  --panel: #020617;
   --accent: #22c55e;
   --text: #f9fafb;
   --muted: #9ca3af;
+  --stroke: #1f2933;
+
+  /* Layout */
+  --maxw: 520px;
+  --pad: 16px;
+
+  /* Bottom nav */
+  --nav-h: 64px;
+  --nav-gap: 10px;
 }
 
-/* ---------- RESET / BASE ---------- */
-* {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, sans-serif;
-}
+/* ---------- RESET ---------- */
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* ---------- APP CONTAINER ---------- */
+/* Padding-bottom ensures fixed bottom nav never covers content */
 .app {
-  max-width: 520px;
+  max-width: var(--maxw);
   margin: 0 auto;
-  padding: 16px;
+  padding: var(--pad);
+  padding-bottom: calc(var(--nav-h) + (var(--nav-gap) * 2) + 20px);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -33,7 +50,8 @@ body {
 header h1 {
   margin: 0;
   text-align: center;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
+  letter-spacing: 0.2px;
 }
 
 /* ---------- CARDS ---------- */
@@ -44,114 +62,13 @@ header h1 {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
-/* ---------- FORM ELEMENTS ---------- */
+/* ---------- TEXT ---------- */
 label {
   font-size: 0.9rem;
   color: var(--muted);
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  font-size: 1.1rem;
-  border-radius: 12px;
-  border: none;
-  outline: none;
-}
-
-/* ---------- FLEX ROWS ---------- */
-.row {
-  display: flex;
-  gap: 12px;
-}
-
-.row > div {
-  flex: 1;
-}
-
-/* ---------- BUTTON GROUP ---------- */
-/* Wraps automatically as shapes increase */
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.btn {
-  flex: 1 1 120px;   /* grow | shrink | minimum width */
-  min-height: 48px; /* thumb-friendly */
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  font-size: 1rem;
-  background: #1f2933;
-  color: var(--text);
-}
-
-.btn.active {
-  background: var(--accent);
-  color: #052e16;
-  font-weight: 600;
-}
-
-/* ---------- SHAPE VISIBILITY ---------- */
-.shape {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.shape.active {
-  display: flex;
-}
-
-/* ---------- TOGGLE ---------- */
-.toggle-wrap {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.toggle {
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  background: #1f2933;
-  color: var(--text);
-}
-
-.toggle.on {
-  background: var(--accent);
-  color: #052e16;
-  font-weight: 600;
-}
-
-/* ---------- RESULTS ---------- */
-.results {
-  position: sticky;
-  bottom: 0;
-}
-
-.results-card {
-  background: #020617;
-  padding: 16px;
-  border-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.yards {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.trucks {
-  font-size: 1.1rem;
 }
 
 .muted {
@@ -159,31 +76,198 @@ input {
   color: var(--muted);
 }
 
-.results-card hr {
-  border: none;
-  border-top: 1px solid #1f2933;
-  margin: 8px 0;
-}
-
-select {
+/* ---------- FORMS ---------- */
+input, select {
   width: 100%;
   padding: 14px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   border-radius: 12px;
   border: none;
+  outline: none;
+  background: #0b1220;
+  color: var(--text);
 }
 
-/* ---------- STACKED INPUT GROUP ---------- */
-/* Used for single-column inputs like curb, gutter, ramps */
+input::placeholder { color: rgba(156,163,175,0.7); }
+
+/* ---------- LAYOUT HELPERS ---------- */
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap; /* prevents squeeze on small screens */
+}
+
+.row > div { flex: 1 1 140px; }
+
 .stack {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-/* ---------- LANDSCAPE / TABLET ---------- */
-@media (orientation: landscape) {
-  .buttons .btn {
-    flex: 1 1 160px;
-  }
+/* ---------- BUTTONS (general) ---------- */
+.btn {
+  flex: 1 1 140px;
+  min-height: 48px;            /* thumb-friendly */
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--stroke);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.btn.active {
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+}
+
+/* Button groups (shape selection, truck capacity, etc.) */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+/* ---------- SEGMENTED CONTROLS (converter/settings) ---------- */
+.segmented {
+  display: flex;
+  gap: 8px;
+  background: #0b1220;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.seg, .frac {
+  flex: 1;
+  min-height: 46px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--stroke);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.seg.active, .frac.active {
+  background: var(--accent);
+  color: #052e16;
+}
+
+/* Smaller segmented group (fraction row) */
+.segmented.small .seg,
+.segmented.small .frac {
+  padding: 10px;
+  font-size: 0.92rem;
+}
+
+/* ---------- TOGGLES ---------- */
+.toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.toggle {
+  min-height: 48px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--stroke);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.toggle.on {
+  background: var(--accent);
+  color: #052e16;
+}
+
+/* Special case: you used .btn.toggle in calculator */
+.btn.toggle { flex: 1 1 100%; }
+
+/* ---------- SHAPE VISIBILITY ---------- */
+.shape {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+.shape.active { display: flex; }
+
+/* ---------- RESULTS ---------- */
+/* IMPORTANT: Not sticky. Sticky + bottom nav = overlap on mobile. */
+.results { position: relative; }
+
+.results-card {
+  background: var(--panel);
+  padding: 16px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.yards {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.2px;
+}
+
+.trucks { font-size: 1.1rem; }
+
+.results-card hr {
+  border: none;
+  border-top: 1px solid var(--stroke);
+  margin: 8px 0;
+}
+
+/* ---------- VISIBILITY UTILS ---------- */
+.hidden { display: none !important; }
+
+/* ---------- BOTTOM NAV (fixed, always accessible) ---------- */
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--nav-gap);
+  width: calc(100% - (var(--pad) * 2));
+  max-width: var(--maxw);
+
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+
+  background: rgba(2, 6, 23, 0.92);
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.05);
+  z-index: 999;
+}
+
+.bottom-nav a {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--stroke);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.bottom-nav a.active {
+  background: var(--accent);
+  color: #052e16;
+}
+
+/* ---------- LANDSCAPE / WIDER ---------- */
+@media (min-width: 700px) {
+  .btn { flex: 1 1 160px; }
+  header h1 { font-size: 1.5rem; }
 }

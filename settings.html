@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Settings • Job Site Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Settings</h1>
+    </header>
+
+    <div class="card">
+      <div class="stack">
+        <button class="btn" onclick="location.href='settings-units.html'">Units</button>
+        <button class="btn" onclick="location.href='settings-rounding.html'">Rounding Rules</button>
+        <button class="btn" onclick="location.href='settings-trucks.html'">Truck Defaults</button>
+      </div>
+
+      <hr />
+
+      <button class="btn" id="resetBtn">Reset to Jobsite Defaults</button>
+      <div class="muted" id="summary"></div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="index.html" id="navCalc">Calculator</a>
+      <a href="converter.html" id="navConv">Converter</a>
+      <a href="settings.html" id="navSettings">Settings</a>
+    </nav>
+  </div>
+
+  <script src="settings-store.js"></script>
+  <script src="settings.js"></script>
+  <script>
+    document.getElementById("navSettings")?.classList.add("active");
+  </script>
+</body>
+</html>

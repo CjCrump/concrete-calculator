@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Units • Settings</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Units</h1>
+    </header>
+
+    <div class="card">
+      <label>Length Entry</label>
+      <div class="segmented">
+        <button class="seg" data-length="ftin">Feet & Inches</button>
+        <button class="seg" data-length="decft">Decimal Feet</button>
+      </div>
+
+      <label style="margin-top:12px;">Thickness / Depth Entry</label>
+      <div class="segmented">
+        <button class="seg" data-thickness="in">Inches</button>
+        <button class="seg" data-thickness="ft">Feet</button>
+      </div>
+
+      <label style="margin-top:12px;">Weight Display</label>
+      <div class="segmented">
+        <button class="seg" data-weight="tons">Tons (US)</button>
+      </div>
+
+      <label style="margin-top:12px;">Tape Fraction Precision</label>
+      <div class="segmented">
+        <button class="seg" data-frac="16">1/16"</button>
+        <button class="seg" data-frac="8">1/8"</button>
+        <button class="seg" data-frac="4">1/4"</button>
+      </div>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="toggle" id="backBtn">Back</button>
+        <button class="toggle on" id="saveBtn">Save</button>
+      </div>
+
+      <div class="muted" id="status" style="margin-top:10px;"></div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="index.html" id="navCalc">Calculator</a>
+      <a href="converter.html" id="navConv">Converter</a>
+      <a href="settings.html" id="navSettings">Settings</a>
+    </nav>
+  </div>
+
+  <script src="settings-store.js"></script>
+  <script src="settings-units.js"></script>
+  <script>document.getElementById("navSettings")?.classList.add("active");</script>
+</body>
+</html>

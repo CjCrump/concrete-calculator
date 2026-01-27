@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
   <title>Concrete Calculator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -13,8 +14,19 @@
 
     <!-- HEADER / SHAPE SELECTOR -->
     <header>
-      <h1>Concrete Calculator</h1>
-
+      <h1>Job Site Calculator</h1>
+ <div class="row">
+        <div>
+          <label>Material</label>
+          <select id="material">
+            <option value="concrete">Concrete</option>
+            <option value="rock">Rock</option>
+            <option value="sand">Sand</option>
+            <option value="topsoil">Topsoil</option>
+            <option value="asphalt">Asphalt</option>
+          </select>
+        </div>
+      </div>
       <div class="buttons">
         <button class="btn active" data-shape="slab">Slab</button>
         <button class="btn" data-shape="footing">Footing</button>
@@ -159,6 +171,15 @@
 
 
       <!-- COMMON SETTINGS -->
+
+    
+
+      <div class="row" id="roundingWrap" style="display:none;">
+        <div>
+          <label>Loads rounding</label>
+          <button class="btn toggle on" id="roundingToggle" type="button">ROUND UP</button>
+        </div>
+      </div>
       <div class="row">
         <div>
           <label>Waste %</label>
@@ -186,6 +207,7 @@
         <div class="muted">Total pour</div>
         <div class="yards" id="totalYards">0.00 yd³</div>
         <div class="trucks" id="trucks">0 trucks</div>
+        <div class="muted" id="tonsLine" style="display:none;"></div>
         <div class="muted" id="remainder"></div>
 
         <button class="btn" id="clearPourBtn">🗑 Clear pour</button>
@@ -194,8 +216,31 @@
 
   </div>
 
-  <script src="app.js"></script>
+<nav class="bottom-nav">
+  <a href="index.html" id="navCalc">Calculator</a>
+  <a href="converter.html" id="navConv">Converter</a>
+  <a href="settings.html" id="navSettings">Settings</a>
+</nav>
+
+<!--scripts-->
+
+<script src="settings-store.js"></script>
+<script src="app.js"></script>
+
+<!--active tab listener-->
+
+<script>
+  const path = location.pathname.split('/').pop();
+  const map = {
+    "index.html": "navCalc",
+    "converter.html": "navConv",
+    "settings.html": "navSettings"
+  };
+  const id = map[path] || "navCalc";
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+</script>
+
 </body>
 </html>
-
 

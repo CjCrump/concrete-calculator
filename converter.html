@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Unit Converter • Job Site Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Unit Converter</h1>
+    </header>
+
+    <!-- MODE SELECT -->
+    <div class="card">
+      <div class="segmented">
+        <button class="seg active" data-mode="tape">Tape</button>
+        <button class="seg" data-mode="slope">Slope</button>
+        <button class="seg" data-mode="tons">Yards ↔ Tons</button>
+      </div>
+    </div>
+
+    <!-- TAPE MODE -->
+    <div class="card mode" id="mode-tape">
+      <label>Feet</label>
+      <input type="number" id="tapeFeet" inputmode="numeric" />
+
+      <label>Inches</label>
+      <input type="number" id="tapeInches" inputmode="decimal" />
+
+      <label>Fraction</label>
+      <div class="segmented small">
+        <button class="frac" data-frac="0">—</button>
+        <button class="frac" data-frac="0.0625">1/16</button>
+        <button class="frac" data-frac="0.125">1/8</button>
+        <button class="frac" data-frac="0.25">1/4</button>
+        <button class="frac" data-frac="0.5">1/2</button>
+      </div>
+
+      <div class="row">
+        <label>Round Up</label>
+        <button id="tapeRound" class="toggle on">ON</button>
+      </div>
+
+      <div class="results">
+        <div id="tapeDecimal">—</div>
+        <div class="muted">Decimal Feet (Engineer Rule)</div>
+      </div>
+    </div>
+
+    <!-- SLOPE MODE -->
+    <div class="card mode hidden" id="mode-slope">
+      <label>Grade (%)</label>
+      <input type="number" id="slopePct" inputmode="decimal" />
+
+      <label>Run (ft)</label>
+      <input type="number" id="slopeRun" inputmode="decimal" />
+
+      <div class="results">
+        <div id="slopeRise">—</div>
+        <div class="muted">Rise (ft)</div>
+      </div>
+    </div>
+
+    <!-- YARDS ↔ TONS -->
+    <div class="card mode hidden" id="mode-tons">
+      <label>Material</label>
+      <select id="tonsMaterial">
+        <option value="rock">Rock</option>
+        <option value="sand">Sand</option>
+        <option value="topsoil">Topsoil</option>
+        <option value="asphalt">Asphalt</option>
+      </select>
+
+      <label>Cubic Yards</label>
+      <input type="number" id="yardsInput" inputmode="decimal" />
+
+      <div class="results">
+        <div id="tonsResult">—</div>
+        <div class="muted">Estimated Tons</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a href="index.html" id="navCalc">Calculator</a>
+      <a href="converter.html" id="navConv">Converter</a>
+      <a href="settings.html" id="navSettings">Settings</a>
+    </nav>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="settings-store.js"></script>
+  <script src="converter.js"></script>
+  <script>
+    document.getElementById("navConv")?.classList.add("active");
+  </script>
+</body>
+</html>

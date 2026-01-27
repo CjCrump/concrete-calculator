@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Rounding Rules • Settings</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header><h1>Rounding Rules</h1></header>
+
+    <div class="card">
+      <label>Truck Loads Default</label>
+      <div class="segmented">
+        <button class="seg" data-loads="up">Always Up</button>
+        <button class="seg" data-loads="down">Always Down</button>
+        <button class="seg" data-loads="ask">Ask Each Time</button>
+      </div>
+
+      <label style="margin-top:12px;">Tape Measure</label>
+      <div class="segmented">
+        <button class="seg" data-tape="up">Round Up</button>
+        <button class="seg" data-tape="exact">Exact</button>
+      </div>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="toggle" id="backBtn">Back</button>
+        <button class="toggle on" id="saveBtn">Save</button>
+      </div>
+
+      <div class="muted" id="status" style="margin-top:10px;"></div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="index.html" id="navCalc">Calculator</a>
+      <a href="converter.html" id="navConv">Converter</a>
+      <a href="settings.html" id="navSettings">Settings</a>
+    </nav>
+  </div>
+
+  <script src="settings-store.js"></script>
+  <script src="settings-rounding.js"></script>
+  <script>document.getElementById("navSettings")?.classList.add("active");</script>
+</body>
+</html>
