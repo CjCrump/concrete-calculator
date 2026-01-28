@@ -24,12 +24,6 @@ let S = FieldCalcSettings.load();
 let fracDenom = Number(S.rounding.fracPrecision || 16); // default 1/16
 let fracStep = 1 / fracDenom;
 
-// Converter snap semantics:
-// - Default (Build) = 1/16 inch
-// - Exact (Build)   = 1/32 inch
-const DEFAULT_SNAP_STEP_IN = 1/16;
-const EXACT_SNAP_STEP_IN   = 1/32;
-
 
 /* ============================================================
    MODE SWITCH UI (Tape / Slope / Yards↔Tons)
@@ -108,12 +102,8 @@ let tapeRoundUp = (S.rounding.tapeMode === 'up');
 let fracInputValue = 0; // decimal inches (0.0 .. <1.0)
 
 
-// Preference: snap selection (inches)
-// - "default" => 1/16 (build default)
-// - "exact"   => 1/32 (build exact)
-// - number    => explicit snap step (e.g., 0.125 for 1/8)
-let snapSelection = "default";
-let snapOverrideStep = null; // used only when snapSelection is a number
+// Preference: snap override (inches). null = use settings default (fracStep).
+let snapOverrideStep = null;
 
 // ---------- Helpers ----------
 function setAuto(el, on) {
@@ -135,13 +125,9 @@ function snapNearest(value, step) {
 }
 
 function getSnapStep() {
-  // IMPORTANT: Converter defaults to build math:
-  // - Default = 1/16
-  // - Exact   = 1/32
-  // - Otherwise, use explicit selection
-  if (snapSelection === "exact") return EXACT_SNAP_STEP_IN;
-  if (snapSelection === "default") return DEFAULT_SNAP_STEP_IN;
-  return snapOverrideStep || DEFAULT_SNAP_STEP_IN;
+  // Default from Settings: fracStep (1/16 or 1/8)
+  // Override if user selects snap buttons
+  return snapOverrideStep || fracStep;
 }
 
 function highlightButtons(container, attr, selectedStr) {
@@ -192,7 +178,6 @@ function resetTapeUI() {
 
   // Reset user fraction input + preference snap
   fracInputValue = 0;
-  snapSelection = "default";
   snapOverrideStep = null;
 
   if (tapeFrac) tapeFrac.value = '';
@@ -265,7 +250,7 @@ function calcTapeToEngineer() {
 
   // Engineer = tenths
   const totalFeet = totalInches / 12;
-  engFeetIn.value = totalFeet.toFixed(2);
+  engFeetIn.value = totalFeet.toFixed(1);
 
   setAuto(engFeetIn, true);
 
@@ -291,13 +276,6 @@ function recalcTape() {
 engFeetIn?.addEventListener('input', () => {
   tapeLastEdited = 'eng';
   recalcTape();
-});
-
-engFeetIn?.addEventListener('blur', () => {
-  const v = parseFloat(engFeetIn.value);
-  if (Number.isFinite(v)) {
-    engFeetIn.value = v.toFixed(2);
-  }
 });
 
 [tapeFeet, tapeInches].forEach(el => {
@@ -403,17 +381,13 @@ snapButtons?.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
 
-  const snapStr = btn.getAttribute('data-snap'); // "default" | "exact" | numeric string
+  const snapStr = btn.getAttribute('data-snap');
 
-  // Store selection exactly as chosen (this is a preference, not a derived result)
-  snapSelection = snapStr;
-
-  if (snapStr === 'default' || snapStr === 'exact') {
+  // "default" means use settings fracStep
+  if (snapStr === 'default') {
     snapOverrideStep = null;
   } else {
-    // Explicit step (e.g. 0.125 = 1/8)
-    const n = Number(snapStr);
-    snapOverrideStep = Number.isFinite(n) ? n : null;
+    snapOverrideStep = Number(snapStr);
   }
 
   highlightButtons(snapButtons, 'data-snap', snapStr);
@@ -421,7 +395,6 @@ snapButtons?.addEventListener('click', (e) => {
   // Recalc using the new snap preference
   recalcTape();
 });
-
 
 // Round Up toggle (preference)
 tapeRoundBtn?.addEventListener('click', () => {

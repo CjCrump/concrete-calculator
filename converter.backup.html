@@ -61,7 +61,7 @@
   placeholder="e.g. 1/32"
 />
 <div class="muted">
-  Type any fraction (e.g., 1/32). Result uses your Snap + Round preference.
+  Type any fraction. If Snap is 1/16 and you enter 1/32, we’ll snap it to 1/16.
 </div>
 
 
@@ -70,9 +70,8 @@
       <div style="flex:1;">
         <label>Snap</label>
         <div class="segmented small" id="snapButtons">
-
-          <button class="frac active" data-snap="default">Default (1/16)</button>
-          <button class="frac" data-snap="exact">Exact (1/32)</button>
+          <button class="frac active" data-snap="default">Default</button>
+          <button class="frac" data-snap="0.0625">1/16</button>
           <button class="frac" data-snap="0.125">1/8</button>
           <button class="frac" data-snap="0.25">1/4</button>
           <button class="frac" data-snap="0.5">1/2</button>
@@ -82,12 +81,12 @@
 
       <div style="min-width: 120px;">
         <label>Round Up</label>
-        <button id="tapeRound" class="toggle">OFF</button>
+        <button id="tapeRound" class="toggle on">ON</button>
       </div>
     </div>
 
     <!-- AUTO DISPLAY (GREEN): shows inches + fraction result cleanly -->
-    <div class="muted">Builder result</div>
+    <div class="muted">Auto (snapped)</div>
     <input type="text" id="tapePrettyOut" readonly class="auto" value="—" />
 
     <button class="btn" id="tapeResetBtn" type="button">Reset Tape</button>
