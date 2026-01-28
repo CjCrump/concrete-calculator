@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Material Presets • Job Site Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Material Presets</h1>
+    </header>
+
+    <div class="card">
+      <div class="muted">
+        These are <b>tons per cubic yard</b> estimates. Moisture and gradation change real tonnage.
+        Slider range: 0.50–2.00 (step 0.05).
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <h3 style="margin:0;">Rock</h3>
+        <div class="muted">Default: 1.35</div>
+        <input id="rockSlider" type="range" min="0.5" max="2" step="0.05" />
+        <div class="row">
+          <div><input id="rockNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+          <div class="btn" id="rockVal" style="display:flex;align-items:center;justify-content:center;">—</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <h3 style="margin:0;">Sand</h3>
+        <div class="muted">Default: 1.30</div>
+        <input id="sandSlider" type="range" min="0.5" max="2" step="0.05" />
+        <div class="row">
+          <div><input id="sandNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+          <div class="btn" id="sandVal" style="display:flex;align-items:center;justify-content:center;">—</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <h3 style="margin:0;">Topsoil</h3>
+        <div class="muted">Default: 0.90</div>
+        <input id="topsoilSlider" type="range" min="0.5" max="2" step="0.05" />
+        <div class="row">
+          <div><input id="topsoilNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+          <div class="btn" id="topsoilVal" style="display:flex;align-items:center;justify-content:center;">—</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <h3 style="margin:0;">Asphalt</h3>
+        <div class="muted">Default: 1.25</div>
+        <input id="asphaltSlider" type="range" min="0.5" max="2" step="0.05" />
+        <div class="row">
+          <div><input id="asphaltNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+          <div class="btn" id="asphaltVal" style="display:flex;align-items:center;justify-content:center;">—</div>
+        </div>
+      </div>
+      <button class="toggle on" id="saveBtn">Save</button>
+      <button class="toggle" id="backBtn">Back</button>
+      <div class="muted" id="savedMsg"></div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="index.html" id="navCalc">Calculator</a>
+      <a href="converter.html" id="navConv">Converter</a>
+      <a href="settings.html" id="navSettings">Settings</a>
+    </nav>
+  </div>
+
+  <script src="settings-store.js"></script>
+  <script src="settings-materials.js"></script>
+  <script>
+    document.getElementById("navSettings")?.classList.add("active");
+  </script>
+</body>
+</html>

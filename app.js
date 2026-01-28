@@ -153,6 +153,15 @@ const runsWrap = document.getElementById('runsWrap');
 const runsInput = document.getElementById('footing-runs');
 
 const wasteWrap = document.getElementById('wasteWrap');
+// Density UI (materials only)
+const densityWrap = document.getElementById('densityWrap');
+const densitySlider = document.getElementById('densitySlider');
+const densityNumber = document.getElementById('densityNumber');
+const densityValue = document.getElementById('densityValue');
+
+// Easy picker buttons for lists (big UI)
+const bagPickerBtn = document.getElementById('bagPickerBtn');
+const curbPickerBtn = document.getElementById('curbPickerBtn');
 
 // Bags UI
 const bagsWrap = document.getElementById('bagsWrap');
@@ -190,6 +199,81 @@ function syncMaterialButtonLabel() {
   };
 
   materialPickerBtn.textContent = labelMap[materialSelect.value] || 'Select Material';
+}
+
+// BAG SIZE: big picker opens modal (only matters if bags enabled + concrete)
+bagPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Bag Size',
+    options: [
+      { value: '80', label: '80 lb' },
+      { value: '60', label: '60 lb' },
+      { value: '50', label: '50 lb' },
+      { value: '40', label: '40 lb' },
+      { value: '90', label: '90 lb' }
+    ],
+    onPick: (value) => {
+      bagSizeSelect.value = value;
+      bagSizeLbs = Number(value) || 80;
+      syncBagButtonLabel();
+      updateTotals();
+    }
+  });
+});
+
+// CURB TYPE: big picker opens modal
+curbPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Curb Type',
+    options: [
+      { value: '1.50', label: 'B6-18 (standard)' },
+      { value: '1.10', label: 'B6-12' },
+      { value: '0.85', label: 'B4-12' },
+      { value: '2.25', label: 'Valley Gutter' }
+    ],
+    onPick: (value, label) => {
+      const curbSelect = document.getElementById('curb-type');
+      if (!curbSelect) return;
+
+      curbSelect.value = value;
+      curbPickerBtn.textContent = label;
+
+      calculate();
+      updateTotals();
+    }
+  });
+});
+
+function syncBagButtonLabel() {
+  if (!bagPickerBtn || !bagSizeSelect) return;
+  bagPickerBtn.textContent = `${bagSizeSelect.value} lb`;
+}
+
+function syncCurbButtonLabel() {
+  if (!curbPickerBtn) return;
+  // Pull label from selected option text
+  const opt = document.querySelector('#curb-type option:checked');
+  curbPickerBtn.textContent = opt ? opt.textContent : 'Select Curb Type';
+}
+
+/**
+ * Sync density UI to current material:
+ * - Only used for rock/sand/topsoil/asphalt tons estimate
+ */
+function syncDensityUI() {
+  if (!densitySlider || !densityNumber || !densityValue) return;
+
+  const d = densityTonsPerYd[material];
+  if (!d) {
+    densitySlider.value = 1.35;
+    densityNumber.value = 1.35;
+    densityValue.textContent = '—';
+    return;
+  }
+
+  densitySlider.value = Number(d).toFixed(2);
+  densityNumber.value = Number(d).toFixed(2);
+  densityValue.textContent = Number(d).toFixed(2);
 }
 
 // Helper: open modal and force selection
@@ -268,10 +352,20 @@ function updateShapeButtonsForMaterial() {
   // IMPORTANT: compute these fresh every time this runs
   // -----------------------------------------------------
   const isConcrete = (material === 'concrete');
-  const wasteAllowed = (material === 'concrete' || material === 'asphalt');
+const wasteAllowed = (material === 'concrete' || material === 'asphalt');
 
-  // Waste UI only for Concrete + Asphalt
-  if (wasteWrap) wasteWrap.style.display = wasteAllowed ? 'flex' : 'none';
+// Materials that need density (tons estimate). Concrete is excluded.
+const densityAllowed = (material === 'rock' || material === 'sand' || material === 'topsoil' || material === 'asphalt');
+
+// Waste UI only for Concrete + Asphalt
+if (wasteWrap) wasteWrap.style.display = wasteAllowed ? 'flex' : 'none';
+
+// Density UI for non-concrete ton materials
+if (densityWrap) densityWrap.classList.toggle('hidden', !densityAllowed);
+
+// Keep density controls synced when switching materials
+if (densityAllowed) syncDensityUI();
+
 
   // Loads rounding toggle only for NON-concrete materials (and only if Ask Each Time)
   if (roundingWrap) roundingWrap.style.display = (!isConcrete && askLoads) ? 'flex' : 'none';
@@ -357,6 +451,44 @@ materialSelect?.addEventListener('change', () => {
 
   updateShapeButtonsForMaterial();
   calculate();
+  updateTotals();
+});
+
+function clampDensity(v) {
+  // Clamp to 0.50–2.00 and snap to 0.05 increments
+  const min = 0.5, max = 2.0, step = 0.05;
+  const clamped = Math.min(max, Math.max(min, v));
+  return Math.round(clamped / step) * step;
+}
+
+function saveDensityForCurrentMaterial(nextDensity) {
+  // Save into settings-store so it persists (Material Presets)
+  const s = window.FieldCalcSettings ? FieldCalcSettings.load() : null;
+  if (!s) return;
+
+  if (!s.materials) s.materials = {};
+  s.materials[material] = nextDensity;
+  FieldCalcSettings.save(s);
+
+  // Update runtime state too
+  densityTonsPerYd[material] = nextDensity;
+}
+
+densitySlider?.addEventListener('input', () => {
+  const next = clampDensity(Number(densitySlider.value));
+  if (densityNumber) densityNumber.value = next.toFixed(2);
+  if (densityValue) densityValue.textContent = next.toFixed(2);
+
+  saveDensityForCurrentMaterial(next);
+  updateTotals();
+});
+
+densityNumber?.addEventListener('input', () => {
+  const next = clampDensity(Number(densityNumber.value));
+  if (densitySlider) densitySlider.value = next.toFixed(2);
+  if (densityValue) densityValue.textContent = next.toFixed(2);
+
+  saveDensityForCurrentMaterial(next);
   updateTotals();
 });
 
@@ -638,10 +770,14 @@ function syncCalculatorFromSettings() {
   applySettingsToState();
   syncMaterialButtonLabel();
   syncTruckCapacityButtons();
+  syncBagButtonLabel();
+  syncCurbButtonLabel();
+  syncDensityUI();
   updateShapeButtonsForMaterial();
   calculate();
   updateTotals();
 }
+
 
 /* =====================================================
    10) INITIAL BOOTSTRAP
@@ -649,5 +785,8 @@ function syncCalculatorFromSettings() {
 syncMaterialButtonLabel();
 updateShapeButtonsForMaterial();
 syncTruckCapacityButtons();
+syncBagButtonLabel();
+syncCurbButtonLabel();
+syncDensityUI();
 calculate();
 updateTotals();

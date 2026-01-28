@@ -118,13 +118,17 @@
 
 <div class="shape curb">
         <div class="stack">
-            <label>Curb Type</label>
-            <select id="curb-type">
-            <option value="1.50">B6-18 (standard)</option>
-            <option value="1.10">B6-12</option>
-            <option value="0.85">B4-12</option>
-            <option value="2.25">Valley Gutter</option>
-            </select>
+        <label>Curb Type</label>
+
+<button id="curbPickerBtn" class="btn big-picker" type="button">B6-18 (standard)</button>
+
+<select id="curb-type" class="hidden">
+  <option value="1.50">B6-18 (standard)</option>
+  <option value="1.10">B6-12</option>
+  <option value="0.85">B4-12</option>
+  <option value="2.25">Valley Gutter</option>
+</select>
+    
         </div>
     
     <div class="stack">
@@ -194,6 +198,22 @@
           <input id="waste" type="number" value="10" />
         </div>
       </div>
+<!-- Materials-only: Density (tons per yd³) -->
+<div class="row hidden" id="densityWrap">
+  <div>
+    <label>Density (tons/yd³)</label>
+    <input id="densitySlider" type="range" min="0.5" max="2" step="0.05" />
+    <div class="row" style="margin-top:8px;">
+      <div style="flex:1;">
+        <input id="densityNumber" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" />
+      </div>
+      <div style="flex:1; display:flex; align-items:center; justify-content:center; font-weight:900;">
+        <span id="densityValue">—</span>
+      </div>
+    </div>
+    <div class="muted">Used for estimated tons. Save per material in Settings → Material Presets.</div>
+  </div>
+</div>
 
       <label>Truck Capacity (yd³)</label>
       <div class="buttons">
@@ -222,15 +242,18 @@
   <div class="row">
     <div>
       <label>Bag size</label>
-      <select id="bagSize">
-        <option value="80">80 lb</option>
-        <option value="60">60 lb</option>
-        <option value="50">50 lb</option>
-        <option value="40">40 lb</option>
-        <option value="90">90 lb</option>
-      </select>
+      
       <div class="muted">Counts round up (you can’t buy part of a bag).</div>
-    </div>
+    </div><button id="bagPickerBtn" class="btn big-picker" type="button">80 lb</button>
+
+<select id="bagSize" class="hidden">
+  <option value="80">80 lb</option>
+  <option value="60">60 lb</option>
+  <option value="50">50 lb</option>
+  <option value="40">40 lb</option>
+  <option value="90">90 lb</option>
+</select>
+
 
     <!-- =====================================================
          FUTURE (parked for later):

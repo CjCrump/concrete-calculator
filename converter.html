@@ -23,46 +23,67 @@
     </div>
 
     <!-- TAPE MODE -->
-    <div class="card mode" id="mode-tape">
-      <label>Feet</label>
-      <input type="number" id="tapeFeet" inputmode="numeric" />
+<div class="card mode" id="mode-tape">
 
-      <label>Inches</label>
-      <input type="number" id="tapeInches" inputmode="decimal" />
+  <!-- PRIMARY (TOP): Engineer -> Tape -->
+  <div class="easy-block">
+    <div class="easy-title">Engineer → Tape</div>
 
-      <label>Fraction</label>
-      <div class="segmented small">
-        <button class="frac" data-frac="0">—</button>
-        <button class="frac" data-frac="0.0625">1/16</button>
-        <button class="frac" data-frac="0.125">1/8</button>
-        <button class="frac" data-frac="0.25">1/4</button>
-        <button class="frac" data-frac="0.5">1/2</button>
-      </div>
+    <label>Decimal Feet (Engineer)</label>
+    <input type="number" id="engFeetIn" inputmode="decimal" placeholder="e.g. 12.3" />
+    <div class="muted">Enter decimal feet; tape fields fill instantly.</div>
+  </div>
 
-      <div class="row">
-        <label>Round Up</label>
-        <button id="tapeRound" class="toggle on">ON</button>
-      </div>
+  <hr />
 
-      <div class="results">
-        <div id="tapeDecimal">—</div>
-        <div class="muted">Decimal Feet (Engineer Rule)</div>
-      </div>
+  <!-- SECONDARY: Tape -> Engineer (your current) -->
+  <div class="easy-block secondary">
+    <div class="easy-title">Tape → Engineer</div>
+
+    <label>Feet</label>
+    <input type="number" id="tapeFeet" inputmode="numeric" />
+
+    <label>Inches</label>
+    <input type="number" id="tapeInches" inputmode="decimal" />
+
+    <label>Fraction</label>
+    <div class="segmented small" id="fracButtons">
+      <button class="frac" data-frac="0">—</button>
+      <button class="frac" data-frac="0.0625">1/16</button>
+      <button class="frac" data-frac="0.125">1/8</button>
+      <button class="frac" data-frac="0.25">1/4</button>
+      <button class="frac" data-frac="0.5">1/2</button>
     </div>
+
+    <div class="row">
+      <label>Round Up</label>
+      <button id="tapeRound" class="toggle on">ON</button>
+    </div>
+
+    <div class="muted">Tape fields fill Engineer input instantly.</div>
+  </div>
+
+</div>
 
     <!-- SLOPE MODE -->
-    <div class="card mode hidden" id="mode-slope">
-      <label>Grade (%)</label>
-      <input type="number" id="slopePct" inputmode="decimal" />
+     
+<div class="card mode" id="mode-slope">
 
-      <label>Run (ft)</label>
-      <input type="number" id="slopeRun" inputmode="decimal" />
+  <div class="easy-block">
+    <div class="easy-title">Rise/Run ↔ Grade</div>
+    <div class="muted">Enter any two. The third auto-fills in green.</div>
+  </div>
 
-      <div class="results">
-        <div id="slopeRise">—</div>
-        <div class="muted">Rise (ft)</div>
-      </div>
-    </div>
+  <label>Rise (ft)</label>
+  <input type="number" id="slopeRiseIn" inputmode="decimal" />
+
+  <label>Run (ft)</label>
+  <input type="number" id="slopeRun" inputmode="decimal" />
+
+  <label>Grade (%)</label>
+  <input type="number" id="slopePct" inputmode="decimal" />
+
+</div>
 
     <!-- YARDS ↔ TONS -->
     <div class="card mode hidden" id="mode-tons">
