@@ -228,7 +228,7 @@ curbPickerBtn?.addEventListener('click', () => {
     options: [
       { value: '1.50', label: 'B6-18 (standard)' },
       { value: '1.10', label: 'B6-12' },
-      { value: '0.85', label: 'B4-12' },
+      { value: '1.90', label: 'B6-24' },
       { value: '2.25', label: 'Valley Gutter' }
     ],
     onPick: (value, label) => {
