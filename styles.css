@@ -16,10 +16,6 @@
   /* Layout */
   --maxw: 520px;
   --pad: 16px;
-
-  /* Bottom nav */
-  --nav-h: 64px;
-  --nav-gap: 10px;
 }
 
 /* ---------- RESET ---------- */
@@ -35,12 +31,13 @@ body {
 }
 
 /* ---------- APP CONTAINER ---------- */
-/* Padding-bottom ensures fixed bottom nav never covers content */
+/* Top padding clears the fixed hamburger button */
 .app {
   max-width: var(--maxw);
   margin: 0 auto;
   padding: var(--pad);
-  padding-bottom: calc(var(--nav-h) + (var(--nav-gap) * 2) + 20px);
+  padding-top: calc(var(--pad) + 52px);   /* clears hamburger btn */
+  padding-bottom: 32px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -229,41 +226,133 @@ input::placeholder { color: rgba(156,163,175,0.7); }
 /* ---------- VISIBILITY UTILS ---------- */
 .hidden { display: none !important; }
 
-/* ---------- BOTTOM NAV (fixed, always accessible) ---------- */
-.bottom-nav {
+/* ---------- HAMBURGER / DRAWER NAV ---------- */
+
+/* Trigger button — top-right corner of every page */
+.hamburger-btn {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: var(--nav-gap);
-  width: calc(100% - (var(--pad) * 2));
-  max-width: var(--maxw);
+  top: 14px;
+  right: 16px;
+  z-index: 1100;
+
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(2, 6, 23, 0.92);
+  backdrop-filter: blur(6px);
 
   display: flex;
-  gap: 8px;
-  padding: 10px;
-
-  background: rgba(2, 6, 23, 0.92);
-  border-radius: 18px;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.05);
-  z-index: 999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
 }
 
-.bottom-nav a {
-  flex: 1;
-  text-align: center;
-  padding: 12px;
+.hamburger-btn:active { background: rgba(34,197,94,0.12); }
+
+.hamburger-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.22s, opacity 0.22s, width 0.22s;
+}
+
+/* Animate to X when open */
+.hamburger-btn.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger-btn.open span:nth-child(2) {
+  opacity: 0;
+  width: 0;
+}
+.hamburger-btn.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Backdrop */
+.nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+}
+.nav-backdrop.open { display: block; }
+
+/* Drawer panel — slides in from right */
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1060;
+  width: min(280px, 80vw);
+
+  background: #0b1220;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  box-shadow: -8px 0 32px rgba(0,0,0,0.45);
+
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px 32px;
+  gap: 8px;
+
+  transform: translateX(110%);
+  transition: transform 0.25s cubic-bezier(0.32,0,0.2,1);
+}
+
+.nav-drawer.open { transform: translateX(0); }
+
+.nav-drawer-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 4px 8px;
+  margin-top: 36px;         /* clears the hamburger btn */
+  border-bottom: 1px solid var(--stroke);
+  margin-bottom: 4px;
+}
+
+.nav-drawer a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
   border-radius: 12px;
   text-decoration: none;
   color: var(--text);
-  background: var(--stroke);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
+  transition: background 0.12s;
 }
 
-.bottom-nav a.active {
-  background: var(--accent);
-  color: #052e16;
+.nav-drawer a:active { background: rgba(255,255,255,0.06); }
+
+.nav-drawer a.active {
+  background: rgba(34,197,94,0.13);
+  color: var(--accent);
+}
+
+.nav-drawer a .nav-icon {
+  font-size: 1.25rem;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-drawer-divider {
+  border: none;
+  border-top: 1px solid var(--stroke);
+  margin: 4px 0;
 }
 
 /* ---------- LANDSCAPE / WIDER ---------- */
@@ -424,5 +513,3 @@ select.auto {
 
 /* Utility: used everywhere to hide panels safely */
 .hidden { display: none !important; }
-
-

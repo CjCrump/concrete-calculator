@@ -134,19 +134,44 @@
       </div>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-      <a href="index.html" id="navCalc">Calculator</a>
-      <a href="converter.html" id="navConv">Converter</a>
-      <a href="settings.html" id="navSettings">Settings</a>
-    </nav>
+    <!-- HAMBURGER BUTTON -->
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- BACKDROP -->
+<div class="nav-backdrop" id="navBackdrop"></div>
+
+<!-- DRAWER -->
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-drawer-title">Navigation</div>
+  <a href="index.html" id="navCalc"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html" id="navConv"><span class="nav-icon">📐</span> Converter</a>
+  <hr class="nav-drawer-divider" />
+  <a href="settings.html" id="navSettings"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html"><span class="nav-icon">🪨</span> Material Presets</a>
+  <a href="settings-trucks.html"><span class="nav-icon">🚛</span> Truck Defaults</a>
+  <a href="settings-rounding.html"><span class="nav-icon">🔢</span> Rounding Rules</a>
+  <a href="settings-units.html"><span class="nav-icon">📏</span> Units</a>
+</nav>
   </div>
 
   <!-- SCRIPTS -->
   <script src="settings-store.js"></script>
   <script src="converter.js"></script>
   <script>
-    document.getElementById("navConv")?.classList.add("active");
+    const _path = location.pathname.split('/').pop() || 'index.html';
+    const _el = document.getElementById('navConv');
+    if (_el) _el.classList.add('active');
+
+    const _btn = document.getElementById('hamburgerBtn');
+    const _backdrop = document.getElementById('navBackdrop');
+    const _drawer = document.getElementById('navDrawer');
+    function openNav() { _btn.classList.add('open'); _btn.setAttribute('aria-expanded','true'); _backdrop.classList.add('open'); _drawer.classList.add('open'); }
+    function closeNav() { _btn.classList.remove('open'); _btn.setAttribute('aria-expanded','false'); _backdrop.classList.remove('open'); _drawer.classList.remove('open'); }
+    _btn.addEventListener('click', () => _btn.classList.contains('open') ? closeNav() : openNav());
+    _backdrop.addEventListener('click', closeNav);
+    _drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
   </script>
 </body>
 </html>

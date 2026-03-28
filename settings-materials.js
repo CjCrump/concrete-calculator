@@ -97,7 +97,17 @@ function onReturnSync(syncFn) {
 }
 
 onReturnSync(() => {
-  renderSummary();
-  loadFeaturesFromStore();
-  renderFeatures();
+  // Re-bind all material sliders from current storage on return
+  ['rock', 'sand', 'topsoil', 'asphalt'].forEach(key => {
+    const s = FieldCalcSettings.load();
+    const slider = document.getElementById(`${key}Slider`);
+    const num = document.getElementById(`${key}Num`);
+    const val = document.getElementById(`${key}Val`);
+    if (!slider || !num || !val) return;
+    const v = Number(s.materials?.[key]) || Number(FieldCalcSettings.defaults.materials[key]);
+    const clamped = clamp(v);
+    slider.value = clamped.toFixed(2);
+    num.value = clamped.toFixed(2);
+    val.textContent = clamped.toFixed(2);
+  });
 });
