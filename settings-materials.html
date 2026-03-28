@@ -4,94 +4,141 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Material Presets • Job Site Calculator</title>
+  <title>GlovesOn | Material Presets</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>Material Presets</h1>
-    </header>
+<div class="app">
 
-    <div class="card">
-      <div class="muted">
-        These are <b>tons per cubic yard</b> estimates. Moisture and gradation change real tonnage.
-        Slider range: 0.50–2.00 (step 0.05).
-      </div>
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Material Presets</h1>
+  </header>
 
-      <div class="card" style="padding:14px;">
-        <h3 style="margin:0;">Rock</h3>
-        <div class="muted">Default: 1.35</div>
-        <input id="rockSlider" type="range" min="0.5" max="2" step="0.05" />
-        <div class="row">
-          <div><input id="rockNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
-          <div class="btn" id="rockVal" style="display:flex;align-items:center;justify-content:center;">—</div>
-        </div>
-      </div>
+  <div class="card">
+    <div class="muted">Tons per cubic yard estimates. Moisture and gradation change real tonnage. Range: 0.50–2.00 (step 0.05).</div>
 
-      <div class="card" style="padding:14px;">
-        <h3 style="margin:0;">Sand</h3>
-        <div class="muted">Default: 1.30</div>
-        <input id="sandSlider" type="range" min="0.5" max="2" step="0.05" />
-        <div class="row">
-          <div><input id="sandNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
-          <div class="btn" id="sandVal" style="display:flex;align-items:center;justify-content:center;">—</div>
-        </div>
-      </div>
-
-      <div class="card" style="padding:14px;">
-        <h3 style="margin:0;">Topsoil</h3>
-        <div class="muted">Default: 0.90</div>
-        <input id="topsoilSlider" type="range" min="0.5" max="2" step="0.05" />
-        <div class="row">
-          <div><input id="topsoilNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
-          <div class="btn" id="topsoilVal" style="display:flex;align-items:center;justify-content:center;">—</div>
-        </div>
-      </div>
-
-      <div class="card" style="padding:14px;">
-        <h3 style="margin:0;">Asphalt</h3>
-        <div class="muted">Default: 1.25</div>
-        <input id="asphaltSlider" type="range" min="0.5" max="2" step="0.05" />
-        <div class="row">
-          <div><input id="asphaltNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
-          <div class="btn" id="asphaltVal" style="display:flex;align-items:center;justify-content:center;">—</div>
-        </div>
-      </div>
-      <button class="toggle on" id="saveBtn">Save</button>
-      <button class="toggle" id="backBtn">Back</button>
-      <div class="muted" id="savedMsg"></div>
+    <div class="card" style="padding:14px;">
+      <h3>Rock</h3><div class="muted">Default: 1.35</div>
+      <input id="rockSlider" type="range" min="0.5" max="2" step="0.05" />
+      <div class="row"><div><input id="rockNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+      <div class="btn" id="rockVal" style="display:flex;align-items:center;justify-content:center;">—</div></div>
     </div>
 
-    <!-- HAMBURGER BUTTON -->
-<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div class="nav-backdrop" id="navBackdrop"></div>
-<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
-  <div class="nav-drawer-title">Navigation</div>
-  <a href="index.html"><span class="nav-icon">🧮</span> Calculator</a>
-  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
-  <hr class="nav-drawer-divider" />
-  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
-  <a href="settings-materials.html"><span class="nav-icon">🪨</span> Material Presets</a>
-  <a href="settings-trucks.html"><span class="nav-icon">🚛</span> Truck Defaults</a>
-  <a href="settings-rounding.html"><span class="nav-icon">🔢</span> Rounding Rules</a>
-  <a href="settings-units.html"><span class="nav-icon">📏</span> Units</a>
-</nav>
+    <div class="card" style="padding:14px;">
+      <h3>Sand</h3><div class="muted">Default: 1.30</div>
+      <input id="sandSlider" type="range" min="0.5" max="2" step="0.05" />
+      <div class="row"><div><input id="sandNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+      <div class="btn" id="sandVal" style="display:flex;align-items:center;justify-content:center;">—</div></div>
+    </div>
+
+    <div class="card" style="padding:14px;">
+      <h3>Topsoil</h3><div class="muted">Default: 0.90</div>
+      <input id="topsoilSlider" type="range" min="0.5" max="2" step="0.05" />
+      <div class="row"><div><input id="topsoilNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+      <div class="btn" id="topsoilVal" style="display:flex;align-items:center;justify-content:center;">—</div></div>
+    </div>
+
+    <div class="card" style="padding:14px;">
+      <h3>Asphalt</h3><div class="muted">Default: 1.25</div>
+      <input id="asphaltSlider" type="range" min="0.5" max="2" step="0.05" />
+      <div class="row"><div><input id="asphaltNum" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+      <div class="btn" id="asphaltVal" style="display:flex;align-items:center;justify-content:center;">—</div></div>
+    </div>
+
+    <div class="row">
+      <button class="toggle" id="backBtn">Back</button>
+      <button class="toggle on" id="saveBtn">Save</button>
+    </div>
+    <div class="muted" id="savedMsg"></div>
   </div>
 
-  <script src="settings-store.js"></script>
-  <script src="settings-materials.js"></script>
-  <script>
-    const _btn = document.getElementById('hamburgerBtn');
-    const _backdrop = document.getElementById('navBackdrop');
-    const _drawer = document.getElementById('navDrawer');
-    function openNav() { _btn.classList.add('open'); _btn.setAttribute('aria-expanded','true'); _backdrop.classList.add('open'); _drawer.classList.add('open'); }
-    function closeNav() { _btn.classList.remove('open'); _btn.setAttribute('aria-expanded','false'); _backdrop.classList.remove('open'); _drawer.classList.remove('open'); }
-    _btn.addEventListener('click', () => _btn.classList.contains('open') ? closeNav() : openNav());
-    _backdrop.addEventListener('click', closeNav);
-    _drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
-  </script>
+</div>
+
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-wordmark"><div class="nav-wordmark-name">GlovesOn</div><div class="nav-wordmark-sub">Jobsite Companion</div></div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub active">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub">Units</a>
+  <div class="nav-footer">Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a></div>
+</nav>
+
+<script src="store.js"></script>
+<script>
+function clamp(v) { return Math.round(Math.min(2.0, Math.max(0.5, v)) / 0.05) * 0.05; }
+
+function bindMaterial(key) {
+  const slider = document.getElementById(`${key}Slider`);
+  const num    = document.getElementById(`${key}Num`);
+  const val    = document.getElementById(`${key}Val`);
+  function setUI(next) {
+    const v = clamp(next);
+    slider.value = v.toFixed(2);
+    num.value    = v.toFixed(2);
+    val.textContent = v.toFixed(2);
+  }
+  const s = GlovesOn.Settings.load();
+  setUI(Number(s.materials?.[key]) || Number(GlovesOn.Settings.defaults.materials[key]));
+  slider.addEventListener('input', () => setUI(Number(slider.value)));
+  num.addEventListener('input',    () => setUI(Number(num.value)));
+  return () => clamp(Number(num.value));
+}
+
+const getRock    = bindMaterial('rock');
+const getSand    = bindMaterial('sand');
+const getTopsoil = bindMaterial('topsoil');
+const getAsphalt = bindMaterial('asphalt');
+
+document.getElementById('saveBtn')?.addEventListener('click', () => {
+  const s = GlovesOn.Settings.load();
+  s.materials = { rock: getRock(), sand: getSand(), topsoil: getTopsoil(), asphalt: getAsphalt() };
+  GlovesOn.Settings.save(s);
+  const msg = document.getElementById('savedMsg');
+  msg.textContent = '✓ Saved.';
+  setTimeout(() => { msg.textContent = ''; }, 1200);
+});
+
+document.getElementById('backBtn')?.addEventListener('click', () => {
+  window.history.length > 1 ? history.back() : (location.href = 'settings.html');
+});
+
+function onReturnSync(fn) {
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fn(); });
+  window.addEventListener('pageshow', fn);
+}
+onReturnSync(() => {
+  ['rock','sand','topsoil','asphalt'].forEach(key => {
+    const s = GlovesOn.Settings.load();
+    const slider = document.getElementById(`${key}Slider`);
+    const num    = document.getElementById(`${key}Num`);
+    const val    = document.getElementById(`${key}Val`);
+    if (!slider || !num || !val) return;
+    const v = clamp(Number(s.materials?.[key]) || Number(GlovesOn.Settings.defaults.materials[key]));
+    slider.value = v.toFixed(2); num.value = v.toFixed(2); val.textContent = v.toFixed(2);
+  });
+});
+</script>
+<script>
+(function() {
+  const btn=document.getElementById('hamburgerBtn'),backdrop=document.getElementById('navBackdrop'),drawer=document.getElementById('navDrawer');
+  function open(){btn.classList.add('open');btn.setAttribute('aria-expanded','true');backdrop.classList.add('open');drawer.classList.add('open');}
+  function close(){btn.classList.remove('open');btn.setAttribute('aria-expanded','false');backdrop.classList.remove('open');drawer.classList.remove('open');}
+  btn.addEventListener('click',()=>btn.classList.contains('open')?close():open());
+  backdrop.addEventListener('click',close);
+  drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
+})();
+</script>
 </body>
 </html>

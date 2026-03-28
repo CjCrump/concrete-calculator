@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>GlovesOn | Daily Log</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Daily Log</h1>
+  </header>
+
+  <!-- ============================================================
+       ENTRY FORM
+  ============================================================ -->
+  <div class="card" id="entryFormCard">
+    <h2 id="formTitle">New Entry</h2>
+
+    <div class="stack">
+      <label>Job Name / Address</label>
+      <input id="entryJob" type="text" placeholder="e.g. 123 Main St pour" autocomplete="off" />
+    </div>
+
+    <div class="stack">
+      <label>Timekeeper</label>
+      <input id="entryTimekeeper" type="text" placeholder="e.g. Mike D." autocomplete="off" />
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Date</label>
+        <input id="entryDate" type="date" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Start Time</label>
+        <input id="entryStart" type="time" />
+      </div>
+      <div>
+        <label>End Time</label>
+        <input id="entryEnd" type="time" />
+      </div>
+    </div>
+
+    <div class="stack">
+      <label>Lunch</label>
+      <div class="lunch-toggle">
+        <button class="btn active" id="lunchThrough" type="button">⚡ Worked Through</button>
+        <button class="btn" id="lunchTook" type="button">🥪 Took Lunch −30 min</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn primary" id="saveEntryBtn" type="button">💾 Save Entry</button>
+      <button class="btn ghost hidden" id="cancelEditBtn" type="button">Cancel</button>
+    </div>
+
+    <div class="muted" id="formStatus"></div>
+  </div>
+
+  <!-- ============================================================
+       PERIOD SETTINGS
+  ============================================================ -->
+  <div class="card">
+    <label>Pay Period</label>
+    <div class="segmented">
+      <button class="seg active" data-period="thisweek">This Week</button>
+      <button class="seg" data-period="lastweek">Last Week</button>
+      <button class="seg" data-period="biweek">Bi-Week</button>
+      <button class="seg" data-period="custom">Custom</button>
+    </div>
+
+    <div id="customRangeWrap" class="hidden row">
+      <div><label>From</label><input id="customFrom" type="date" /></div>
+      <div><label>To</label><input id="customTo" type="date" /></div>
+    </div>
+
+    <label style="margin-top:4px;">Overtime Rule</label>
+    <div class="segmented">
+      <button class="seg active" data-ot="daily">Over 8 hrs / day</button>
+      <button class="seg" data-ot="weekly">Over 40 hrs / week</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SUMMARY
+  ============================================================ -->
+  <div class="card panel">
+    <div class="log-summary-grid">
+      <div class="log-summary-cell">
+        <div class="log-summary-value" id="summaryRegular">0:00</div>
+        <div class="log-summary-label">Regular</div>
+      </div>
+      <div class="log-summary-cell">
+        <div class="log-summary-value ot" id="summaryOT">0:00</div>
+        <div class="log-summary-label">Overtime</div>
+      </div>
+      <div class="log-summary-cell">
+        <div class="log-summary-value" id="summaryDays">0</div>
+        <div class="log-summary-label">Days</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ENTRY LIST
+  ============================================================ -->
+  <div class="card">
+    <div class="section-header">
+      <div class="section-title">Entries</div>
+      <div class="muted" id="periodLabel"></div>
+    </div>
+    <div id="entryList">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">No entries yet.<br />Fill out the form above to add your first entry.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- NAV -->
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-wordmark">
+    <div class="nav-wordmark-name">GlovesOn</div>
+    <div class="nav-wordmark-sub">Jobsite Companion</div>
+  </div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html" class="active"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub">Units</a>
+  <div class="nav-footer">
+    Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a>
+  </div>
+</nav>
+
+<script src="store.js"></script>
+<script>
+/* ============================================================
+   GlovesOn Daily Log
+   ============================================================ */
+
+/* ---- STATE ---- */
+let editingId   = null;    // null = new entry, string = editing existing
+let lunchTaken  = false;   // false = worked through, true = took lunch (−30 min)
+
+/* ---- PERSIST LOG PREFS (ot rule + pay period) ---- */
+const LOG_PREF_KEY = 'gloveson_log_prefs_v1';
+
+function loadLogPrefs() {
+  try {
+    const raw = localStorage.getItem(LOG_PREF_KEY);
+    return raw ? JSON.parse(raw) : { otRule: 'daily', payPeriod: 'thisweek' };
+  } catch { return { otRule: 'daily', payPeriod: 'thisweek' }; }
+}
+
+function saveLogPrefs(prefs) {
+  localStorage.setItem(LOG_PREF_KEY, JSON.stringify(prefs));
+}
+
+const logPrefs = loadLogPrefs();
+let currentOtRule    = logPrefs.otRule    || 'daily';
+let currentPayPeriod = logPrefs.payPeriod || 'thisweek';
+
+/* ---- TIMEKEEPER PERSISTENCE ---- */
+const TK_KEY = 'gloveson_last_timekeeper';
+function loadLastTimekeeper() { return localStorage.getItem(TK_KEY) || ''; }
+function saveLastTimekeeper(name) { if (name) localStorage.setItem(TK_KEY, name); }
+
+/* ---- DATE HELPERS ---- */
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getMondayOfWeek(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay(); // 0=Sun
+  const diff = (day === 0) ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+
+function getPeriodRange(period, customFrom, customTo) {
+  const today = todayISO();
+  const monday = getMondayOfWeek(today);
+
+  if (period === 'thisweek') {
+    const sun = new Date(monday + 'T12:00:00');
+    sun.setDate(sun.getDate() + 6);
+    return { from: monday, to: sun.toISOString().slice(0,10) };
+  }
+  if (period === 'lastweek') {
+    const lastMon = new Date(monday + 'T12:00:00');
+    lastMon.setDate(lastMon.getDate() - 7);
+    const lastSun = new Date(lastMon);
+    lastSun.setDate(lastSun.getDate() + 6);
+    return { from: lastMon.toISOString().slice(0,10), to: lastSun.toISOString().slice(0,10) };
+  }
+  if (period === 'biweek') {
+    const twoWkAgo = new Date(monday + 'T12:00:00');
+    twoWkAgo.setDate(twoWkAgo.getDate() - 7);
+    const sun = new Date(monday + 'T12:00:00');
+    sun.setDate(sun.getDate() + 6);
+    return { from: twoWkAgo.toISOString().slice(0,10), to: sun.toISOString().slice(0,10) };
+  }
+  if (period === 'custom') {
+    return { from: customFrom || monday, to: customTo || today };
+  }
+  return { from: monday, to: today };
+}
+
+function formatPeriodLabel(from, to) {
+  const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  return `${fmt(from)} – ${fmt(to)}`;
+}
+
+/* ---- TIME HELPERS ---- */
+function timeToDecimal(timeStr) {
+  if (!timeStr) return null;
+  const [h, m] = timeStr.split(':').map(Number);
+  return h + m / 60;
+}
+
+function calcRawHours(start, end, lunch) {
+  const s = timeToDecimal(start);
+  const e = timeToDecimal(end);
+  if (s === null || e === null) return 0;
+  let raw = e - s;
+  if (raw <= 0) raw += 24; // overnight
+  if (lunch) raw -= 0.5;
+  return Math.max(0, raw);
+}
+
+function decimalToHM(dec) {
+  const h = Math.floor(dec);
+  const m = Math.round((dec - h) * 60);
+  return `${h}:${String(m).padStart(2,'0')}`;
+}
+
+/* ---- OT CALC ---- */
+function calcOT_Daily(entries) {
+  let reg = 0, ot = 0;
+  entries.forEach(e => {
+    const raw = calcRawHours(e.start, e.end, e.lunch);
+    reg += Math.min(raw, 8);
+    ot  += Math.max(0, raw - 8);
+  });
+  return { reg, ot };
+}
+
+function calcOT_Weekly(entries) {
+  // Sort ascending
+  const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+  let reg = 0, ot = 0, runningReg = 0;
+  sorted.forEach(e => {
+    const raw = calcRawHours(e.start, e.end, e.lunch);
+    const canReg = Math.max(0, 40 - runningReg);
+    const entryReg = Math.min(raw, canReg);
+    const entryOT  = Math.max(0, raw - canReg);
+    reg += entryReg;
+    ot  += entryOT;
+    runningReg += raw;
+  });
+  return { reg, ot };
+}
+
+/* ---- DOM REFS ---- */
+const entryJob       = document.getElementById('entryJob');
+const entryTimekeeper = document.getElementById('entryTimekeeper');
+const entryDate      = document.getElementById('entryDate');
+const entryStart     = document.getElementById('entryStart');
+const entryEnd       = document.getElementById('entryEnd');
+const lunchThroughBtn = document.getElementById('lunchThrough');
+const lunchTookBtn   = document.getElementById('lunchTook');
+const saveEntryBtn   = document.getElementById('saveEntryBtn');
+const cancelEditBtn  = document.getElementById('cancelEditBtn');
+const formStatus     = document.getElementById('formStatus');
+const formTitle      = document.getElementById('formTitle');
+const entryListEl    = document.getElementById('entryList');
+const summaryRegular = document.getElementById('summaryRegular');
+const summaryOT      = document.getElementById('summaryOT');
+const summaryDays    = document.getElementById('summaryDays');
+const periodLabel    = document.getElementById('periodLabel');
+const customRangeWrap = document.getElementById('customRangeWrap');
+const customFrom     = document.getElementById('customFrom');
+const customTo       = document.getElementById('customTo');
+
+/* ---- FORM ---- */
+function resetForm() {
+  editingId = null;
+  lunchTaken = false;
+  entryJob.value        = '';
+  entryTimekeeper.value = loadLastTimekeeper();
+  entryDate.value       = todayISO();
+  entryStart.value      = '';
+  entryEnd.value        = '';
+  lunchThroughBtn.classList.add('active');
+  lunchTookBtn.classList.remove('active');
+  cancelEditBtn.classList.add('hidden');
+  formTitle.textContent = 'New Entry';
+  formStatus.textContent = '';
+}
+
+function populateForm(entry) {
+  editingId             = entry.id;
+  lunchTaken            = entry.lunch;
+  entryJob.value        = entry.job || '';
+  entryTimekeeper.value = entry.timekeeper || '';
+  entryDate.value       = entry.date || todayISO();
+  entryStart.value      = entry.start || '';
+  entryEnd.value        = entry.end || '';
+  lunchThroughBtn.classList.toggle('active', !lunchTaken);
+  lunchTookBtn.classList.toggle('active', lunchTaken);
+  cancelEditBtn.classList.remove('hidden');
+  formTitle.textContent  = 'Edit Entry';
+  formStatus.textContent = '';
+  // Scroll to top of form
+  document.getElementById('entryFormCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+lunchThroughBtn.addEventListener('click', () => {
+  lunchTaken = false;
+  lunchThroughBtn.classList.add('active');
+  lunchTookBtn.classList.remove('active');
+});
+lunchTookBtn.addEventListener('click', () => {
+  lunchTaken = true;
+  lunchTookBtn.classList.add('active');
+  lunchThroughBtn.classList.remove('active');
+});
+
+saveEntryBtn.addEventListener('click', () => {
+  const job   = entryJob.value.trim();
+  const tk    = entryTimekeeper.value.trim();
+  const date  = entryDate.value;
+  const start = entryStart.value;
+  const end   = entryEnd.value;
+
+  if (!job || !date || !start || !end) {
+    formStatus.textContent = '⚠ Job, date, start, and end are required.';
+    return;
+  }
+
+  saveLastTimekeeper(tk);
+
+  const entry = {
+    id:          editingId || GlovesOn.uid(),
+    job, timekeeper: tk, date, start, end,
+    lunch: lunchTaken
+  };
+
+  GlovesOn.Log.save(entry);
+  resetForm();
+  formStatus.textContent = '✓ Saved.';
+  setTimeout(() => { formStatus.textContent = ''; }, 1800);
+  renderAll();
+});
+
+cancelEditBtn.addEventListener('click', () => {
+  resetForm();
+  renderAll();
+});
+
+/* ---- PAY PERIOD + OT RULE CONTROLS ---- */
+document.querySelectorAll('[data-period]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPayPeriod = btn.dataset.period;
+    customRangeWrap.classList.toggle('hidden', currentPayPeriod !== 'custom');
+    saveLogPrefs({ otRule: currentOtRule, payPeriod: currentPayPeriod });
+    renderAll();
+  });
+});
+
+document.querySelectorAll('[data-ot]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-ot]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentOtRule = btn.dataset.ot;
+    saveLogPrefs({ otRule: currentOtRule, payPeriod: currentPayPeriod });
+    renderAll();
+  });
+});
+
+[customFrom, customTo].forEach(el => el?.addEventListener('change', renderAll));
+
+/* ---- DELETE with double-tap confirm ---- */
+const deleteTimers = {};
+
+function armDelete(id, btn) {
+  if (deleteTimers[id]) {
+    // Second tap — delete
+    clearTimeout(deleteTimers[id]);
+    delete deleteTimers[id];
+    GlovesOn.Log.remove(id);
+    renderAll();
+  } else {
+    // First tap — arm
+    btn.classList.add('danger');
+    btn.title = 'Tap again to confirm delete';
+    deleteTimers[id] = setTimeout(() => {
+      delete deleteTimers[id];
+      btn.classList.remove('danger');
+      btn.title = 'Delete';
+    }, 3000);
+  }
+}
+
+/* ---- RENDER ---- */
+function renderAll() {
+  const from = customFrom?.value;
+  const to   = customTo?.value;
+  const range = getPeriodRange(currentPayPeriod, from, to);
+  const allEntries = GlovesOn.Log.getAll();
+
+  // Filter to period
+  const inPeriod = allEntries.filter(e => e.date >= range.from && e.date <= range.to);
+
+  // Summary
+  const { reg, ot } = currentOtRule === 'daily'
+    ? calcOT_Daily(inPeriod)
+    : calcOT_Weekly(inPeriod);
+
+  summaryRegular.textContent = decimalToHM(reg);
+  summaryOT.textContent      = decimalToHM(ot);
+  summaryDays.textContent    = inPeriod.length;
+  periodLabel.textContent    = formatPeriodLabel(range.from, range.to);
+
+  // Entry list
+  if (allEntries.length === 0) {
+    entryListEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">No entries yet.<br />Fill out the form above to add your first entry.</div>
+      </div>`;
+    return;
+  }
+
+  entryListEl.innerHTML = '';
+
+  allEntries.forEach(entry => {
+    const raw = calcRawHours(entry.start, entry.end, entry.lunch);
+    const { reg: eReg, ot: eOT } = currentOtRule === 'daily'
+      ? calcOT_Daily([entry])
+      : { reg: Math.min(raw, 8), ot: Math.max(0, raw - 8) };
+
+    const inRange = entry.date >= range.from && entry.date <= range.to;
+    const dateStr = new Date(entry.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+
+    const div = document.createElement('div');
+    div.className = 'log-entry' + (inRange ? '' : ' ' );
+
+    div.innerHTML = `
+      <div class="log-entry-info">
+        <div class="log-entry-date">${dateStr}${!inRange ? ' · outside period' : ''}</div>
+        <div class="log-entry-job">${entry.job || '—'}</div>
+        <div class="log-entry-hours">
+          ${decimalToHM(raw)} total
+          · ${entry.timekeeper || 'no timekeeper'}
+          · ${entry.lunch ? 'lunch taken' : 'no lunch'}
+          ${eOT > 0 ? `<span class="ot-badge">+${decimalToHM(eOT)} OT</span>` : ''}
+        </div>
+      </div>
+      <div class="log-entry-actions">
+        <button class="icon-btn edit-btn" data-id="${entry.id}" title="Edit">✏️</button>
+        <button class="icon-btn del-btn"  data-id="${entry.id}" title="Delete">🗑️</button>
+      </div>`;
+
+    div.querySelector('.edit-btn').addEventListener('click', () => {
+      const e = GlovesOn.Log.getAll().find(x => x.id === entry.id);
+      if (e) populateForm(e);
+    });
+    div.querySelector('.del-btn').addEventListener('click', function() {
+      armDelete(entry.id, this);
+    });
+
+    entryListEl.appendChild(div);
+  });
+}
+
+/* ---- INIT ---- */
+function initLogPrefsUI() {
+  document.querySelectorAll('[data-period]').forEach(b => {
+    b.classList.toggle('active', b.dataset.period === currentPayPeriod);
+  });
+  document.querySelectorAll('[data-ot]').forEach(b => {
+    b.classList.toggle('active', b.dataset.ot === currentOtRule);
+  });
+  customRangeWrap.classList.toggle('hidden', currentPayPeriod !== 'custom');
+}
+
+resetForm();
+initLogPrefsUI();
+renderAll();
+</script>
+
+<script>
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const backdrop = document.getElementById('navBackdrop');
+  const drawer   = document.getElementById('navDrawer');
+  function open()  { btn.classList.add('open');    btn.setAttribute('aria-expanded','true');  backdrop.classList.add('open');    drawer.classList.add('open'); }
+  function close() { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); backdrop.classList.remove('open'); drawer.classList.remove('open'); }
+  btn.addEventListener('click', () => btn.classList.contains('open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+
+</body>
+</html>

@@ -4,174 +4,433 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Unit Converter • Job Site Calculator</title>
+  <title>GlovesOn | Converter</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>Unit Converter</h1>
-    </header>
 
-    <!-- MODE SELECT -->
-    <div class="card">
-      <div class="segmented">
-        <button class="seg active" data-mode="tape">Tape</button>
-        <button class="seg" data-mode="slope">Slope</button>
-        <button class="seg" data-mode="tons">Yards ↔ Tons</button>
-      </div>
+<div class="app">
+
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Converter</h1>
+  </header>
+
+  <!-- MODE SELECT -->
+  <div class="card">
+    <div class="segmented">
+      <button class="seg active" data-mode="tape">Tape</button>
+      <button class="seg" data-mode="slope">Slope</button>
+      <button class="seg" data-mode="tons">Yards ↔ Tons</button>
     </div>
-
-    <!-- TAPE MODE -->
-<div class="card mode" id="mode-tape">
-
-  <!-- =====================================================
-       PRIMARY: Engineer -> Tape
-       User types decimal feet (engineer), tape fills instantly.
-  ====================================================== -->
-  <div class="easy-block">
-    <div class="easy-title">Engineer → Tape</div>
-
-    <label>Decimal Feet (Engineer)</label>
-    <input type="number" id="engFeetIn" inputmode="decimal" placeholder="e.g. 12.3" />
-    <div class="muted">Typing here fills tape fields below.</div>
   </div>
 
-  <hr />
-
-  <!-- =====================================================
-       SECONDARY: Tape -> Engineer
-       User types tape ft / inches / fraction, engineer fills instantly.
-  ====================================================== -->
-  <div class="easy-block secondary">
-    <div class="easy-title">Tape → Engineer</div>
-
-    <label>Feet</label>
-    <input type="number" id="tapeFeet" inputmode="numeric" placeholder="e.g. 12" />
-
-    <label>Inches</label>
-    <input type="number" id="tapeInches" inputmode="decimal" placeholder='e.g. 3' />
-
-    <!-- USER INPUT: fraction portion of inches -->
-    <label>Fraction</label>
-<input
-  type="text"
-  id="tapeFrac"
-  inputmode="text"
-  placeholder="e.g. 1/32"
-/>
-<div class="muted">
-  Type any fraction (e.g., 1/32). Result uses your Snap + Round preference.
-</div>
-
-
-    <!-- PREFERENCES (NOT INPUT): snap + rounding -->
-    <div class="row" style="align-items:flex-start;">
-      <div style="flex:1;">
-        <label>Snap</label>
-        <div class="segmented small" id="snapButtons">
-
-          <button class="frac active" data-snap="default">Default (1/16)</button>
-          <button class="frac" data-snap="exact">Exact (1/32)</button>
-          <button class="frac" data-snap="0.125">1/8</button>
-          <button class="frac" data-snap="0.25">1/4</button>
-          <button class="frac" data-snap="0.5">1/2</button>
+  <!-- TAPE MODE -->
+  <div class="card mode" id="mode-tape">
+    <div class="easy-block">
+      <div class="easy-title">Engineer → Tape</div>
+      <label>Decimal Feet (Engineer)</label>
+      <input type="number" id="engFeetIn" inputmode="decimal" placeholder="e.g. 12.3" />
+      <div class="muted">Typing here fills tape fields below.</div>
+    </div>
+    <hr />
+    <div class="easy-block secondary">
+      <div class="easy-title">Tape → Engineer</div>
+      <label>Feet</label>
+      <input type="number" id="tapeFeet" inputmode="numeric" placeholder="e.g. 12" />
+      <label>Inches</label>
+      <input type="number" id="tapeInches" inputmode="decimal" placeholder="e.g. 3" />
+      <label>Fraction</label>
+      <input type="text" id="tapeFrac" inputmode="text" placeholder="e.g. 1/32" />
+      <div class="muted">Type any fraction (e.g., 1/32). Result uses your Snap + Round preference.</div>
+      <div class="row" style="align-items:flex-start;">
+        <div style="flex:1;">
+          <label>Snap</label>
+          <div class="segmented small" id="snapButtons">
+            <button class="frac active" data-snap="default">Default (1/16)</button>
+            <button class="frac" data-snap="exact">Exact (1/32)</button>
+            <button class="frac" data-snap="0.125">1/8</button>
+            <button class="frac" data-snap="0.25">1/4</button>
+            <button class="frac" data-snap="0.5">1/2</button>
+          </div>
+          <div class="muted">Snap is a preference. It does not auto-change.</div>
         </div>
-        <div class="muted">Snap is a preference. It does not auto-change.</div>
+        <div style="min-width:120px;">
+          <label>Round Up</label>
+          <button id="tapeRound" class="toggle">OFF</button>
+        </div>
       </div>
-
-      <div style="min-width: 120px;">
-        <label>Round Up</label>
-        <button id="tapeRound" class="toggle">OFF</button>
-      </div>
+      <div class="muted">Builder result</div>
+      <input type="text" id="tapePrettyOut" readonly class="auto" value="—" />
+      <button class="btn" id="tapeResetBtn" type="button">Reset Tape</button>
     </div>
-
-    <!-- AUTO DISPLAY (GREEN): shows inches + fraction result cleanly -->
-    <div class="muted">Builder result</div>
-    <input type="text" id="tapePrettyOut" readonly class="auto" value="—" />
-
-    <button class="btn" id="tapeResetBtn" type="button">Reset Tape</button>
   </div>
 
-</div>
-
-    <!-- SLOPE MODE -->
-
-<div class="card mode" id="mode-slope">
-
-  <div class="easy-block">
-    <div class="easy-title">Rise/Run ↔ Grade</div>
-    <div class="muted">Enter any two. The third auto-fills in green.</div>
+  <!-- SLOPE MODE -->
+  <div class="card mode hidden" id="mode-slope">
+    <div class="easy-block">
+      <div class="easy-title">Rise / Run ↔ Grade</div>
+      <div class="muted">Enter any two. The third auto-fills in green.</div>
+    </div>
+    <label>Rise (ft)</label>
+    <input type="number" id="slopeRiseIn" inputmode="decimal" />
+    <label>Run (ft)</label>
+    <input type="number" id="slopeRun" inputmode="decimal" />
+    <label>Grade (%)</label>
+    <input type="number" id="slopePct" inputmode="decimal" />
   </div>
 
-  <label>Rise (ft)</label>
-  <input type="number" id="slopeRiseIn" inputmode="decimal" />
-
-  <label>Run (ft)</label>
-  <input type="number" id="slopeRun" inputmode="decimal" />
-
-  <label>Grade (%)</label>
-  <input type="number" id="slopePct" inputmode="decimal" />
-
-</div>
-
-    <!-- YARDS ↔ TONS -->
-    <div class="card mode hidden" id="mode-tons">
-      <label>Material</label>
-      <select id="tonsMaterial">
-        <option value="rock">Rock</option>
-        <option value="sand">Sand</option>
-        <option value="topsoil">Topsoil</option>
-        <option value="asphalt">Asphalt</option>
-      </select>
-
-      <label>Cubic Yards</label>
-      <input type="number" id="yardsInput" inputmode="decimal" />
-
-      <div class="results">
-        <div id="tonsResult">—</div>
-        <div class="muted">Estimated Tons</div>
-      </div>
+  <!-- YARDS ↔ TONS -->
+  <div class="card mode hidden" id="mode-tons">
+    <label>Material</label>
+    <select id="tonsMaterial">
+      <option value="rock">Rock</option>
+      <option value="sand">Sand</option>
+      <option value="topsoil">Topsoil</option>
+      <option value="asphalt">Asphalt</option>
+    </select>
+    <label>Cubic Yards</label>
+    <input type="number" id="yardsInput" inputmode="decimal" />
+    <div class="results-card">
+      <div id="tonsResult" style="font-size:1.8rem;font-weight:900;color:var(--accent);">—</div>
+      <div class="muted">Estimated Tons</div>
     </div>
+  </div>
 
-    <!-- HAMBURGER BUTTON -->
+</div><!-- /.app -->
+
+<!-- NAV -->
 <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
   <span></span><span></span><span></span>
 </button>
-
-<!-- BACKDROP -->
 <div class="nav-backdrop" id="navBackdrop"></div>
-
-<!-- DRAWER -->
 <nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
-  <div class="nav-drawer-title">Navigation</div>
-  <a href="index.html" id="navCalc"><span class="nav-icon">🧮</span> Calculator</a>
-  <a href="converter.html" id="navConv"><span class="nav-icon">📐</span> Converter</a>
-  <hr class="nav-drawer-divider" />
-  <a href="settings.html" id="navSettings"><span class="nav-icon">⚙️</span> Settings</a>
-  <a href="settings-materials.html"><span class="nav-icon">🪨</span> Material Presets</a>
-  <a href="settings-trucks.html"><span class="nav-icon">🚛</span> Truck Defaults</a>
-  <a href="settings-rounding.html"><span class="nav-icon">🔢</span> Rounding Rules</a>
-  <a href="settings-units.html"><span class="nav-icon">📏</span> Units</a>
-</nav>
+  <div class="nav-wordmark">
+    <div class="nav-wordmark-name">GlovesOn</div>
+    <div class="nav-wordmark-sub">Jobsite Companion</div>
   </div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html" class="active"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub">Units</a>
+  <div class="nav-footer">
+    Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a>
+  </div>
+</nav>
 
-  <!-- SCRIPTS -->
-  <script src="settings-store.js"></script>
-  <script src="converter.js"></script>
-  <script>
-    const _path = location.pathname.split('/').pop() || 'index.html';
-    const _el = document.getElementById('navConv');
-    if (_el) _el.classList.add('active');
+<script src="store.js"></script>
+<script>
+/* ============================================================
+   GlovesOn Converter — logic inlined
+   ============================================================ */
 
-    const _btn = document.getElementById('hamburgerBtn');
-    const _backdrop = document.getElementById('navBackdrop');
-    const _drawer = document.getElementById('navDrawer');
-    function openNav() { _btn.classList.add('open'); _btn.setAttribute('aria-expanded','true'); _backdrop.classList.add('open'); _drawer.classList.add('open'); }
-    function closeNav() { _btn.classList.remove('open'); _btn.setAttribute('aria-expanded','false'); _backdrop.classList.remove('open'); _drawer.classList.remove('open'); }
-    _btn.addEventListener('click', () => _btn.classList.contains('open') ? closeNav() : openNav());
-    _backdrop.addEventListener('click', closeNav);
-    _drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
-  </script>
+let S = GlovesOn.Settings.load();
+let fracDenom = Number(S.rounding.fracPrecision || 16);
+let fracStep  = 1 / fracDenom;
+const DEFAULT_SNAP_STEP_IN = 1/16;
+const EXACT_SNAP_STEP_IN   = 1/32;
+
+/* ---- MODE SWITCH ---- */
+const modeButtons = document.querySelectorAll('.segmented .seg');
+const modes       = document.querySelectorAll('.mode');
+
+(function initModeVisibility() {
+  const activeBtn = document.querySelector('.segmented .seg.active');
+  const mode = activeBtn?.dataset.mode || 'tape';
+  modes.forEach(m => m.classList.add('hidden'));
+  document.getElementById(`mode-${mode}`)?.classList.remove('hidden');
+})();
+
+modeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    modeButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    modes.forEach(m => m.classList.add('hidden'));
+    document.getElementById(`mode-${mode}`)?.classList.remove('hidden');
+    if (mode !== 'tape' && tapePrettyOut) tapePrettyOut.value = '—';
+    recalcAll();
+  });
+});
+
+/* ---- TAPE ---- */
+const engFeetIn    = document.getElementById('engFeetIn');
+const tapeFeet     = document.getElementById('tapeFeet');
+const tapeInches   = document.getElementById('tapeInches');
+const tapeFrac     = document.getElementById('tapeFrac');
+const snapButtons  = document.getElementById('snapButtons');
+const tapeRoundBtn = document.getElementById('tapeRound');
+const tapePrettyOut = document.getElementById('tapePrettyOut');
+const tapeResetBtn  = document.getElementById('tapeResetBtn');
+
+let tapeLastEdited  = 'eng';
+let tapeRoundUp     = (S.rounding.tapeMode === 'up');
+let fracInputValue  = 0;
+let snapSelection   = 'default';
+let snapOverrideStep = null;
+
+function setAuto(el, on) { if (el) el.classList.toggle('auto', !!on); }
+
+function setTapeToggleUI() {
+  if (!tapeRoundBtn) return;
+  tapeRoundBtn.textContent = tapeRoundUp ? 'ON' : 'OFF';
+  tapeRoundBtn.classList.toggle('on', tapeRoundUp);
+}
+
+function snapUp(v, s)      { return Math.ceil(v / s) * s; }
+function snapNearest(v, s) { return Math.round(v / s) * s; }
+
+function getSnapStep() {
+  if (snapSelection === 'exact')   return EXACT_SNAP_STEP_IN;
+  if (snapSelection === 'default') return DEFAULT_SNAP_STEP_IN;
+  return snapOverrideStep || DEFAULT_SNAP_STEP_IN;
+}
+
+function highlightButtons(container, attr, sel) {
+  if (!container) return;
+  container.querySelectorAll('button').forEach(b =>
+    b.classList.toggle('active', b.getAttribute(attr) === sel)
+  );
+}
+
+function formatTapePretty(totalInches, stepUsed) {
+  const ft      = Math.floor(totalInches / 12);
+  const remIn   = totalInches - ft * 12;
+  const denom   = Math.round(1 / stepUsed);
+  const wholeIn = Math.floor(remIn);
+  const frac    = remIn - wholeIn;
+  let num = Math.round(frac * denom);
+  if (num === denom) return `${ft}' ${wholeIn + 1}"`;
+  if (num === 0)     return `${ft}' ${wholeIn}"`;
+  return `${ft}' ${wholeIn} ${num}/${denom}"`;
+}
+
+function updatePrettyDisplay(totalInches, stepUsed) {
+  if (!tapePrettyOut) return;
+  tapePrettyOut.value = formatTapePretty(totalInches, stepUsed);
+  setAuto(tapePrettyOut, true);
+}
+
+function resetTapeUI() {
+  if (engFeetIn)   engFeetIn.value = '';
+  if (tapeFeet)    tapeFeet.value = '';
+  if (tapeInches)  tapeInches.value = '';
+  if (tapeFrac)    tapeFrac.value = '';
+  if (tapePrettyOut) tapePrettyOut.value = '—';
+  setAuto(engFeetIn, false); setAuto(tapeFeet, false);
+  setAuto(tapeInches, false); setAuto(tapeFrac, false); setAuto(tapePrettyOut, false);
+  fracInputValue = 0; snapSelection = 'default'; snapOverrideStep = null;
+  highlightButtons(snapButtons, 'data-snap', 'default');
+  tapeLastEdited = 'eng';
+}
+
+function parseFractionToInches(raw) {
+  if (!raw) return 0;
+  const s = String(raw).trim();
+  if (!s || s === '-' || s === '—') return 0;
+  if (!s.includes('/')) {
+    const n = Number(s);
+    return Number.isNaN(n) ? 0 : Math.min(0.999999, Math.max(0, n));
+  }
+  const parts = s.split('/');
+  if (parts.length !== 2) return 0;
+  const num = Number(parts[0].trim()), den = Number(parts[1].trim());
+  if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return 0;
+  return Math.min(0.999999, Math.max(0, num / den));
+}
+
+function snappedFractionText(remInches, stepUsed) {
+  const denom = Math.round(1 / stepUsed);
+  const whole = Math.floor(remInches);
+  const frac  = remInches - whole;
+  let n = Math.round(frac * denom);
+  if (n === denom) n = 0;
+  if (n === 0) return '';
+  return `${n}/${denom}`;
+}
+
+function setTapeFieldsFromTotalInches(totalInches, stepUsed, markAsAuto = true) {
+  if (!tapeFeet || !tapeInches || !tapeFrac) return;
+  const ft      = Math.floor(totalInches / 12);
+  const remIn   = totalInches - ft * 12;
+  const wholeIn = Math.floor(remIn);
+  const fracText = snappedFractionText(remIn, stepUsed);
+  tapeFeet.value  = String(ft);
+  tapeInches.value = String(wholeIn);
+  tapeFrac.value   = fracText;
+  fracInputValue   = parseFractionToInches(fracText);
+  setAuto(tapeFeet, markAsAuto); setAuto(tapeInches, markAsAuto); setAuto(tapeFrac, markAsAuto);
+  updatePrettyDisplay(totalInches, stepUsed);
+}
+
+function calcEngineerToTape() {
+  const raw = engFeetIn?.value;
+  if (raw === '') {
+    if (tapeFeet)    tapeFeet.value = '';
+    if (tapeInches)  tapeInches.value = '';
+    if (tapeFrac)    tapeFrac.value = '';
+    if (tapePrettyOut) tapePrettyOut.value = '—';
+    setAuto(tapeFeet, false); setAuto(tapeInches, false); setAuto(tapeFrac, false); setAuto(tapePrettyOut, false);
+    return;
+  }
+  const decFeet = Number(raw);
+  if (Number.isNaN(decFeet)) return;
+  let totalInches = decFeet * 12;
+  const stepUsed = getSnapStep();
+  totalInches = tapeRoundUp ? snapUp(totalInches, stepUsed) : snapNearest(totalInches, stepUsed);
+  setTapeFieldsFromTotalInches(totalInches, stepUsed, true);
+}
+
+function calcTapeToEngineer() {
+  const allEmpty = (!tapeFeet?.value && !tapeInches?.value && !tapeFrac?.value);
+  if (allEmpty) {
+    if (engFeetIn) engFeetIn.value = '';
+    if (tapePrettyOut) tapePrettyOut.value = '—';
+    setAuto(engFeetIn, false); setAuto(tapePrettyOut, false);
+    return;
+  }
+  const ft   = Number(tapeFeet?.value) || 0;
+  const inch = Number(tapeInches?.value) || 0;
+  let totalInches = ft * 12 + inch + fracInputValue;
+  const stepUsed  = getSnapStep();
+  totalInches = tapeRoundUp ? snapUp(totalInches, stepUsed) : snapNearest(totalInches, stepUsed);
+  if (engFeetIn) engFeetIn.value = (totalInches / 12).toFixed(2);
+  setAuto(engFeetIn, true);
+  updatePrettyDisplay(totalInches, stepUsed);
+}
+
+function recalcTape() {
+  if (tapeLastEdited === 'eng') {
+    setAuto(engFeetIn, false);
+    calcEngineerToTape();
+  } else {
+    setAuto(tapeFeet, false); setAuto(tapeInches, false); setAuto(tapeFrac, false);
+    calcTapeToEngineer();
+  }
+}
+
+engFeetIn?.addEventListener('input', () => { tapeLastEdited = 'eng'; recalcTape(); });
+engFeetIn?.addEventListener('blur', () => {
+  const v = parseFloat(engFeetIn.value);
+  if (Number.isFinite(v)) engFeetIn.value = v.toFixed(2);
+});
+[tapeFeet, tapeInches].forEach(el => el?.addEventListener('input', () => { tapeLastEdited = 'tape'; recalcTape(); }));
+tapeFrac?.addEventListener('input', () => {
+  tapeLastEdited = 'tape';
+  setAuto(tapeFrac, false);
+  fracInputValue = parseFractionToInches(tapeFrac.value);
+  recalcTape();
+});
+snapButtons?.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const snapStr = btn.getAttribute('data-snap');
+  snapSelection = snapStr;
+  snapOverrideStep = (snapStr === 'default' || snapStr === 'exact') ? null : (Number(snapStr) || null);
+  highlightButtons(snapButtons, 'data-snap', snapStr);
+  recalcTape();
+});
+tapeRoundBtn?.addEventListener('click', () => {
+  tapeRoundUp = !tapeRoundUp;
+  setTapeToggleUI();
+  recalcTape();
+});
+tapeResetBtn?.addEventListener('click', resetTapeUI);
+
+/* ---- SLOPE ---- */
+const slopePct    = document.getElementById('slopePct');
+const slopeRun    = document.getElementById('slopeRun');
+const slopeRiseIn = document.getElementById('slopeRiseIn');
+let slopeLastEdited = null;
+
+function numOrNull(el) {
+  if (!el || el.value === '') return null;
+  const n = Number(el.value);
+  return Number.isNaN(n) ? null : n;
+}
+function setAutoValue(el, val) { if (el) { el.value = val; el.classList.add('auto'); } }
+function clearAuto(el)         { if (el) el.classList.remove('auto'); }
+
+function calcSlope3Way() {
+  const pct  = numOrNull(slopePct);
+  const run  = numOrNull(slopeRun);
+  const rise = numOrNull(slopeRiseIn);
+  if (slopeLastEdited === 'pct')  clearAuto(slopePct);
+  if (slopeLastEdited === 'run')  clearAuto(slopeRun);
+  if (slopeLastEdited === 'rise') clearAuto(slopeRiseIn);
+  const count = [pct, run, rise].filter(v => v !== null).length;
+  if (count < 2 || count === 3) return;
+  if (pct === null  && rise !== null && run !== null && run !== 0) { setAutoValue(slopePct, ((rise / run) * 100).toFixed(2)); return; }
+  if (rise === null && pct !== null  && run !== null)              { setAutoValue(slopeRiseIn, ((pct / 100) * run).toFixed(2)); return; }
+  if (run === null  && pct !== null  && rise !== null && pct !== 0){ setAutoValue(slopeRun, ((rise * 100) / pct).toFixed(2)); return; }
+}
+
+slopePct?.addEventListener('input',    () => { slopeLastEdited = 'pct';  clearAuto(slopePct);    calcSlope3Way(); });
+slopeRun?.addEventListener('input',    () => { slopeLastEdited = 'run';  clearAuto(slopeRun);    calcSlope3Way(); });
+slopeRiseIn?.addEventListener('input', () => { slopeLastEdited = 'rise'; clearAuto(slopeRiseIn); calcSlope3Way(); });
+
+/* ---- YARDS → TONS ---- */
+const yardsInput  = document.getElementById('yardsInput');
+const tonsResult  = document.getElementById('tonsResult');
+const tonsMaterial = document.getElementById('tonsMaterial');
+
+function calcTons() {
+  const yards = Number(yardsInput?.value);
+  if (!yards) { if (tonsResult) tonsResult.textContent = '—'; return; }
+  const density = Number(GlovesOn.Settings.load().materials?.[tonsMaterial?.value]);
+  if (!density)  { if (tonsResult) tonsResult.textContent = '—'; return; }
+  if (tonsResult) tonsResult.textContent = (yards * density).toFixed(1) + ' tons';
+}
+
+[yardsInput, tonsMaterial].forEach(el => el?.addEventListener('input', calcTons));
+
+/* ---- SETTINGS SYNC ---- */
+function syncConverterFromSettings() {
+  S = GlovesOn.Settings.load();
+  fracDenom   = Number(S.rounding.fracPrecision || 16);
+  fracStep    = 1 / fracDenom;
+  tapeRoundUp = (S.rounding.tapeMode === 'up');
+  setTapeToggleUI();
+  recalcAll();
+}
+
+function recalcAll() { recalcTape(); calcSlope3Way(); calcTons(); }
+
+function onReturnSync(fn) {
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fn(); });
+  window.addEventListener('pageshow', fn);
+  window.addEventListener('storage', e => { if (e.key?.includes('gloveson')) fn(); });
+}
+
+onReturnSync(syncConverterFromSettings);
+
+/* ---- INIT ---- */
+setTapeToggleUI();
+resetTapeUI();
+recalcAll();
+</script>
+
+<script>
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const backdrop = document.getElementById('navBackdrop');
+  const drawer   = document.getElementById('navDrawer');
+  function open()  { btn.classList.add('open');    btn.setAttribute('aria-expanded','true');  backdrop.classList.add('open');    drawer.classList.add('open'); }
+  function close() { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); backdrop.classList.remove('open'); drawer.classList.remove('open'); }
+  btn.addEventListener('click', () => btn.classList.contains('open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+
 </body>
 </html>

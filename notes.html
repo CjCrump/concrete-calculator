@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>GlovesOn | Notes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app" id="listView">
+
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Notes</h1>
+  </header>
+
+  <div class="card">
+    <div class="section-header">
+      <div class="section-title" id="notesCountLabel">Notes</div>
+      <button class="btn primary" id="newNoteBtn" type="button" style="flex:0 0 auto;padding:10px 16px;min-height:40px;">➕ New Note</button>
+    </div>
+    <div id="notesList">
+      <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <div class="empty-state-text">No notes yet.<br />Tap "New Note" to get started.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#listView -->
+
+<!-- ============================================================
+     EDIT VIEW (hidden until needed)
+============================================================ -->
+<div class="app hidden" id="editView">
+
+  <div class="card">
+    <div class="note-edit-header">
+      <button class="btn ghost" id="backFromEditBtn" type="button" style="flex:0 0 auto;padding:10px 14px;min-height:40px;">← Back</button>
+      <div class="note-edit-title-display" id="editTitleDisplay">Untitled Note</div>
+      <button class="btn danger" id="deleteNoteBtn" type="button" style="flex:0 0 auto;padding:10px 14px;min-height:40px;">🗑</button>
+    </div>
+
+    <textarea
+      id="noteBody"
+      class="note-edit-textarea"
+      placeholder="Start typing your note here…"
+    ></textarea>
+
+    <div class="note-char-count" id="charCount">0 characters</div>
+  </div>
+
+</div><!-- /#editView -->
+
+<!-- NAV -->
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-wordmark">
+    <div class="nav-wordmark-name">GlovesOn</div>
+    <div class="nav-wordmark-sub">Jobsite Companion</div>
+  </div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html" class="active"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub">Units</a>
+  <div class="nav-footer">
+    Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a>
+  </div>
+</nav>
+
+<script src="store.js"></script>
+<script>
+/* ============================================================
+   GlovesOn Notes
+   ============================================================ */
+
+/* ---- STATE ---- */
+let currentNoteId = null;    // null = new note
+let deleteArmed   = false;
+let deleteTimer   = null;
+
+/* ---- DOM ---- */
+const listView       = document.getElementById('listView');
+const editView       = document.getElementById('editView');
+const notesList      = document.getElementById('notesList');
+const notesCountLabel = document.getElementById('notesCountLabel');
+const newNoteBtn     = document.getElementById('newNoteBtn');
+const backFromEditBtn = document.getElementById('backFromEditBtn');
+const deleteNoteBtn  = document.getElementById('deleteNoteBtn');
+const noteBody       = document.getElementById('noteBody');
+const charCount      = document.getElementById('charCount');
+const editTitleDisplay = document.getElementById('editTitleDisplay');
+
+/* ---- VIEWS ---- */
+function showList() {
+  listView.classList.remove('hidden');
+  editView.classList.add('hidden');
+  renderList();
+}
+
+function showEdit(note) {
+  currentNoteId    = note ? note.id : null;
+  noteBody.value   = note ? (note.body || '') : '';
+  updateEditTitle();
+  updateCharCount();
+  resetDeleteBtn();
+  listView.classList.add('hidden');
+  editView.classList.remove('hidden');
+  // Focus textarea after transition
+  setTimeout(() => noteBody.focus(), 80);
+}
+
+/* ---- TITLE FROM FIRST LINE ---- */
+function getTitleFromBody(body) {
+  if (!body || !body.trim()) return 'Untitled Note';
+  const firstLine = body.split('\n')[0].trim();
+  return firstLine.slice(0, 60) || 'Untitled Note';
+}
+
+function updateEditTitle() {
+  editTitleDisplay.textContent = getTitleFromBody(noteBody.value);
+}
+
+function updateCharCount() {
+  const n = noteBody.value.length;
+  charCount.textContent = `${n.toLocaleString()} character${n !== 1 ? 's' : ''}`;
+}
+
+/* ---- SAVE ON BACK ---- */
+function saveCurrentNote() {
+  const body = noteBody.value;
+  // Don't save completely empty new notes
+  if (!body.trim() && !currentNoteId) return;
+
+  GlovesOn.Notes.save({
+    id:     currentNoteId,
+    body,
+    pinned: currentNoteId
+      ? (GlovesOn.Notes.getAll().find(n => n.id === currentNoteId)?.pinned ?? false)
+      : false
+  });
+}
+
+noteBody.addEventListener('input', () => {
+  updateEditTitle();
+  updateCharCount();
+});
+
+backFromEditBtn.addEventListener('click', () => {
+  saveCurrentNote();
+  showList();
+});
+
+newNoteBtn.addEventListener('click', () => {
+  showEdit(null);
+});
+
+/* ---- DELETE (double-tap confirm) ---- */
+function resetDeleteBtn() {
+  deleteArmed = false;
+  if (deleteTimer) clearTimeout(deleteTimer);
+  deleteTimer = null;
+  deleteNoteBtn.textContent = '🗑';
+  deleteNoteBtn.classList.remove('armed');
+  deleteNoteBtn.style.background = '';
+  deleteNoteBtn.style.color = '';
+}
+
+deleteNoteBtn.addEventListener('click', () => {
+  if (!currentNoteId && !noteBody.value.trim()) {
+    // New blank note — just go back
+    showList();
+    return;
+  }
+
+  if (!deleteArmed) {
+    deleteArmed = true;
+    deleteNoteBtn.textContent = 'Delete?';
+    deleteNoteBtn.style.background = 'var(--danger)';
+    deleteNoteBtn.style.color = '#fff';
+    deleteTimer = setTimeout(() => resetDeleteBtn(), 3000);
+  } else {
+    // Confirmed
+    if (currentNoteId) GlovesOn.Notes.remove(currentNoteId);
+    resetDeleteBtn();
+    showList();
+  }
+});
+
+/* ---- RENDER LIST ---- */
+function formatRelativeTime(isoStr) {
+  if (!isoStr) return '';
+  const now  = Date.now();
+  const then = new Date(isoStr).getTime();
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60)   return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+function renderList() {
+  const notes = GlovesOn.Notes.getAll();
+
+  notesCountLabel.textContent = notes.length
+    ? `Notes (${notes.length})`
+    : 'Notes';
+
+  if (notes.length === 0) {
+    notesList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <div class="empty-state-text">No notes yet.<br />Tap "New Note" to get started.</div>
+      </div>`;
+    return;
+  }
+
+  // Sort: pinned first, then by updated desc
+  const sorted = [...notes].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned)  return 1;
+    return new Date(b.updated) - new Date(a.updated);
+  });
+
+  notesList.innerHTML = '';
+
+  let pinnedHeaderShown = false;
+  let unpinnedHeaderShown = false;
+
+  sorted.forEach(note => {
+    // Section headers
+    if (note.pinned && !pinnedHeaderShown) {
+      const h = document.createElement('div');
+      h.className = 'section-title';
+      h.style.padding = '4px 0 8px';
+      h.textContent = '📌 Pinned';
+      notesList.appendChild(h);
+      pinnedHeaderShown = true;
+    }
+    if (!note.pinned && !unpinnedHeaderShown && pinnedHeaderShown) {
+      const h = document.createElement('div');
+      h.className = 'section-title';
+      h.style.padding = '12px 0 8px';
+      h.textContent = 'All Notes';
+      notesList.appendChild(h);
+      unpinnedHeaderShown = true;
+    }
+
+    const title   = getTitleFromBody(note.body);
+    const preview = (note.body || '').replace(/\n/g, ' ').slice(title.length).trim().slice(0, 80);
+
+    const card = document.createElement('div');
+    card.className = 'note-card' + (note.pinned ? ' pinned' : '');
+    card.innerHTML = `
+      <div class="note-card-header">
+        <div class="note-title">${escHtml(title)}</div>
+        <div class="note-meta">
+          <button class="pin-btn ${note.pinned ? 'pinned' : ''}" data-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}">📌</button>
+        </div>
+      </div>
+      ${preview ? `<div class="note-preview">${escHtml(preview)}</div>` : ''}
+      <div class="note-time">${formatRelativeTime(note.updated)}</div>`;
+
+    // Tap card = open edit
+    card.addEventListener('click', e => {
+      if (e.target.closest('.pin-btn')) return;
+      showEdit(note);
+    });
+
+    // Pin button
+    card.querySelector('.pin-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      const fresh = GlovesOn.Notes.getAll().find(n => n.id === note.id);
+      if (!fresh) return;
+      GlovesOn.Notes.save({ ...fresh, pinned: !fresh.pinned });
+      renderList();
+    });
+
+    notesList.appendChild(card);
+  });
+}
+
+/* ---- HTML ESCAPE ---- */
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* ---- INIT ---- */
+showList();
+</script>
+
+<script>
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const backdrop = document.getElementById('navBackdrop');
+  const drawer   = document.getElementById('navDrawer');
+  function open()  { btn.classList.add('open');    btn.setAttribute('aria-expanded','true');  backdrop.classList.add('open');    drawer.classList.add('open'); }
+  function close() { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); backdrop.classList.remove('open'); drawer.classList.remove('open'); }
+  btn.addEventListener('click', () => btn.classList.contains('open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+
+</body>
+</html>

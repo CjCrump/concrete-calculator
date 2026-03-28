@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>GlovesOn | Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Calculator</h1>
+  </header>
+
+  <!-- MATERIAL + SHAPE SELECTOR -->
+  <div class="card">
+    <div class="stack">
+      <label>Material</label>
+      <button id="materialPickerBtn" class="btn" type="button">Concrete</button>
+      <select id="material" class="hidden">
+        <option value="concrete">Concrete</option>
+        <option value="rock">Rock</option>
+        <option value="sand">Sand</option>
+        <option value="topsoil">Topsoil</option>
+        <option value="asphalt">Asphalt</option>
+      </select>
+    </div>
+
+    <label>Shape</label>
+    <div class="buttons">
+      <button class="btn active" data-shape="slab">Slab</button>
+      <button class="btn" data-shape="footing">Footing</button>
+      <button class="btn" data-shape="wall">Wall / Column</button>
+      <button class="btn" data-shape="curb">Curb</button>
+      <button class="btn" data-shape="approach">Approach</button>
+      <button class="btn" data-shape="column">Column (round)</button>
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+
+    <!-- SLAB -->
+    <div class="shape slab active">
+      <div class="row">
+        <div><label>Length (ft)</label><input id="slab-length" type="number" inputmode="decimal" /></div>
+        <div><label>Width (ft)</label><input id="slab-width" type="number" inputmode="decimal" /></div>
+        <div><label>Thickness (in)</label><input id="slab-thickness" type="number" inputmode="decimal" /></div>
+      </div>
+    </div>
+
+    <!-- FOOTING -->
+    <div class="shape footing">
+      <div class="row">
+        <div><label>Length per run (ft)</label><input id="footing-length" type="number" inputmode="decimal" /></div>
+        <div><label>Width (in)</label><input id="footing-width" type="number" inputmode="decimal" /></div>
+      </div>
+      <div class="row">
+        <div><label>Depth (in)</label><input id="footing-depth" type="number" inputmode="decimal" /></div>
+        <div class="toggle-wrap">
+          <label>Continuous</label>
+          <button id="continuousToggle" class="toggle">OFF</button>
+        </div>
+      </div>
+      <div id="runsWrap" style="display:none;">
+        <label>Number of runs</label>
+        <input id="footing-runs" type="number" value="1" inputmode="numeric" />
+      </div>
+    </div>
+
+    <!-- WALL -->
+    <div class="shape wall">
+      <div class="row">
+        <div><label>Length (ft)</label><input id="wall-length" type="number" inputmode="decimal" /></div>
+        <div><label>Height (ft)</label><input id="wall-height" type="number" inputmode="decimal" /></div>
+        <div><label>Thickness (in)</label><input id="wall-thickness" type="number" inputmode="decimal" /></div>
+      </div>
+    </div>
+
+    <!-- CURB -->
+    <div class="shape curb">
+      <div class="stack">
+        <label>Curb Type</label>
+        <button id="curbPickerBtn" class="btn" type="button">B6-18 (standard)</button>
+        <select id="curb-type" class="hidden">
+          <option value="1.50">B6-18 (standard)</option>
+          <option value="1.10">B6-12</option>
+          <option value="1.90">B6-24</option>
+          <option value="2.25">Valley Gutter</option>
+        </select>
+      </div>
+      <div class="stack">
+        <label>Length (ft)</label>
+        <input id="curb-length" type="number" inputmode="decimal" />
+      </div>
+    </div>
+
+    <!-- APPROACH -->
+    <div class="shape approach">
+      <div class="stack"><label>Width (ft)</label><input id="approach-width" type="number" inputmode="decimal" /></div>
+      <div class="stack"><label>Length (ft)</label><input id="approach-length" type="number" inputmode="decimal" /></div>
+      <div class="row">
+        <div><label>Top thickness (in)</label><input id="approach-top" type="number" inputmode="decimal" /></div>
+        <div><label>Bottom thickness (in)</label><input id="approach-bottom" type="number" inputmode="decimal" /></div>
+      </div>
+    </div>
+
+    <!-- CIRCULAR COLUMN -->
+    <div class="shape column">
+      <div class="row">
+        <div><label>Diameter (in)</label><input id="column-diameter" type="number" inputmode="decimal" /></div>
+        <div><label>Height (ft)</label><input id="column-height" type="number" inputmode="decimal" /></div>
+      </div>
+      <div class="stack"><label>Quantity</label><input id="column-qty" type="number" value="1" inputmode="numeric" /></div>
+    </div>
+
+    <!-- COMMON CONTROLS -->
+    <div class="row" id="roundingWrap" style="display:none;">
+      <div>
+        <label>Loads rounding</label>
+        <button class="btn toggle on" id="roundingToggle" type="button">ROUND UP</button>
+      </div>
+    </div>
+
+    <div class="row" id="wasteWrap">
+      <div><label>Waste %</label><input id="waste" type="number" value="10" inputmode="decimal" /></div>
+    </div>
+
+    <div class="row hidden" id="densityWrap">
+      <div>
+        <label>Density (tons/yd³)</label>
+        <input id="densitySlider" type="range" min="0.5" max="2" step="0.05" />
+        <div class="row" style="margin-top:8px;">
+          <div style="flex:1;"><input id="densityNumber" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" /></div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;font-weight:900;"><span id="densityValue">—</span></div>
+        </div>
+        <div class="muted">Saved per material in Settings → Material Presets.</div>
+      </div>
+    </div>
+
+    <label>Truck Capacity (yd³)</label>
+    <div class="buttons">
+      <button class="btn active" data-cap="9">9 yd³</button>
+      <button class="btn" data-cap="10">10 yd³</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results">
+    <div class="results-card">
+      <div class="muted">Current item</div>
+      <div class="yards" id="currentYards">0.00 yd³</div>
+      <button class="btn" id="addItemBtn">➕ Add to pour</button>
+      <hr />
+      <div class="muted">Total pour</div>
+      <div class="yards" id="totalYards">0.00 yd³</div>
+
+      <!-- Bags (concrete only, feature-toggled) -->
+      <div id="bagsWrap" class="hidden">
+        <hr />
+        <div class="row" style="align-items:flex-end;">
+          <div>
+            <label>Bag size</label>
+            <div class="muted">Counts round up — you can't buy part of a bag.</div>
+          </div>
+          <button id="bagPickerBtn" class="btn" type="button">80 lb</button>
+          <select id="bagSize" class="hidden">
+            <option value="80">80 lb</option>
+            <option value="60">60 lb</option>
+            <option value="50">50 lb</option>
+            <option value="40">40 lb</option>
+            <option value="90">90 lb</option>
+          </select>
+        </div>
+        <div class="muted" id="bagsLine"></div>
+        <div class="muted" id="admixtureLine"></div>
+      </div>
+
+      <div class="trucks" id="trucks">0 trucks</div>
+      <div class="muted" id="tonsLine" style="display:none;"></div>
+      <div class="muted" id="remainder"></div>
+      <button class="btn" id="clearPourBtn">🗑 Clear pour</button>
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- PICKER OVERLAY -->
+<div id="pickerOverlay" class="picker-overlay hidden" role="dialog" aria-modal="true">
+  <div class="picker-sheet">
+    <div class="picker-title" id="pickerTitle">Select</div>
+    <div class="picker-options" id="pickerOptions"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-wordmark">
+    <div class="nav-wordmark-name">GlovesOn</div>
+    <div class="nav-wordmark-sub">Jobsite Companion</div>
+  </div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html" class="active"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub">Units</a>
+  <div class="nav-footer">
+    Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a>
+  </div>
+</nav>
+
+<script src="store.js"></script>
+<script>
+/* ============================================================
+   GlovesOn Calculator — app logic (inlined)
+   ============================================================ */
+
+/* ---- STATE ---- */
+let currentShape    = 'slab';
+let truckCapacity   = 9;
+let continuous      = false;
+let currentItemYards = 0;
+let totalYards      = 0;
+let material        = 'concrete';
+let roundUpLoads    = true;
+let overOrderPct    = 0;
+let bagSizeLbs      = 80;
+let bagsEnabled     = false;
+
+const BAG_YIELD_FT3 = { 40:0.30, 50:0.375, 60:0.45, 80:0.60, 90:0.675 };
+
+const densityTonsPerYd = { concrete:null, rock:1.35, sand:1.30, topsoil:0.90, asphalt:1.25 };
+
+/* ---- LOAD SETTINGS ---- */
+function applySettingsToState() {
+  const s = GlovesOn.Settings.load();
+  truckCapacity = Number(s.trucks.defaultCapacity) || truckCapacity;
+  overOrderPct  = Number(s.trucks.overOrderPct ?? 0);
+  bagsEnabled   = s.features?.enableBags === true;
+  if (s.rounding.loadsDefault === 'up')   roundUpLoads = true;
+  if (s.rounding.loadsDefault === 'down') roundUpLoads = false;
+  askLoads = (s.rounding.loadsDefault === 'ask');
+  densityTonsPerYd.rock    = Number(s.materials.rock)    || densityTonsPerYd.rock;
+  densityTonsPerYd.sand    = Number(s.materials.sand)    || densityTonsPerYd.sand;
+  densityTonsPerYd.topsoil = Number(s.materials.topsoil) || densityTonsPerYd.topsoil;
+  densityTonsPerYd.asphalt = Number(s.materials.asphalt) || densityTonsPerYd.asphalt;
+}
+
+const S = GlovesOn.Settings.load();
+truckCapacity = Number(S.trucks.defaultCapacity) || truckCapacity;
+overOrderPct  = Number(S.trucks.overOrderPct ?? 0);
+bagsEnabled   = S.features?.enableBags === true;
+if (S.rounding.loadsDefault === 'up')   roundUpLoads = true;
+if (S.rounding.loadsDefault === 'down') roundUpLoads = false;
+let askLoads = (S.rounding.loadsDefault === 'ask');
+densityTonsPerYd.rock    = Number(S.materials.rock)    || densityTonsPerYd.rock;
+densityTonsPerYd.sand    = Number(S.materials.sand)    || densityTonsPerYd.sand;
+densityTonsPerYd.topsoil = Number(S.materials.topsoil) || densityTonsPerYd.topsoil;
+densityTonsPerYd.asphalt = Number(S.materials.asphalt) || densityTonsPerYd.asphalt;
+
+/* ---- DOM REFS ---- */
+const currentYardsEl  = document.getElementById('currentYards');
+const totalYardsEl    = document.getElementById('totalYards');
+const trucksEl        = document.getElementById('trucks');
+const remainderEl     = document.getElementById('remainder');
+const tonsLineEl      = document.getElementById('tonsLine');
+const materialSelect  = document.getElementById('material');
+const roundingWrap    = document.getElementById('roundingWrap');
+const roundingToggle  = document.getElementById('roundingToggle');
+const addItemBtn      = document.getElementById('addItemBtn');
+const clearPourBtn    = document.getElementById('clearPourBtn');
+const continuousToggle = document.getElementById('continuousToggle');
+const runsWrap        = document.getElementById('runsWrap');
+const runsInput       = document.getElementById('footing-runs');
+const wasteWrap       = document.getElementById('wasteWrap');
+const densityWrap     = document.getElementById('densityWrap');
+const densitySlider   = document.getElementById('densitySlider');
+const densityNumber   = document.getElementById('densityNumber');
+const densityValue    = document.getElementById('densityValue');
+const bagPickerBtn    = document.getElementById('bagPickerBtn');
+const curbPickerBtn   = document.getElementById('curbPickerBtn');
+const bagsWrap        = document.getElementById('bagsWrap');
+const bagSizeSelect   = document.getElementById('bagSize');
+const bagsLineEl      = document.getElementById('bagsLine');
+const admixtureLineEl = document.getElementById('admixtureLine');
+const materialPickerBtn = document.getElementById('materialPickerBtn');
+const pickerOverlay   = document.getElementById('pickerOverlay');
+const pickerTitle     = document.getElementById('pickerTitle');
+const pickerOptions   = document.getElementById('pickerOptions');
+
+/* ---- PICKER ---- */
+function openPicker({ title, options, onPick }) {
+  pickerTitle.textContent = title;
+  pickerOptions.innerHTML = '';
+  options.forEach(opt => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn picker-opt';
+    b.textContent = opt.label;
+    b.addEventListener('click', () => {
+      onPick(opt.value, opt.label);
+      pickerOverlay.classList.add('hidden');
+    });
+    pickerOptions.appendChild(b);
+  });
+  pickerOverlay.classList.remove('hidden');
+}
+
+pickerOverlay.addEventListener('click', e => {
+  if (e.target === pickerOverlay) pickerOverlay.classList.add('hidden');
+});
+
+materialPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Material',
+    options: [
+      { value:'concrete', label:'Concrete' },
+      { value:'rock',     label:'Rock' },
+      { value:'sand',     label:'Sand' },
+      { value:'topsoil',  label:'Topsoil' },
+      { value:'asphalt',  label:'Asphalt' }
+    ],
+    onPick: (value, label) => {
+      materialSelect.value = value;
+      material = value;
+      syncMaterialButtonLabel();
+      updateShapeButtonsForMaterial();
+      calculate();
+      updateTotals();
+    }
+  });
+});
+
+bagPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Bag Size',
+    options: [
+      { value:'80', label:'80 lb' },
+      { value:'60', label:'60 lb' },
+      { value:'50', label:'50 lb' },
+      { value:'40', label:'40 lb' },
+      { value:'90', label:'90 lb' }
+    ],
+    onPick: (value) => {
+      bagSizeSelect.value = value;
+      bagSizeLbs = Number(value) || 80;
+      syncBagButtonLabel();
+      updateTotals();
+    }
+  });
+});
+
+curbPickerBtn?.addEventListener('click', () => {
+  openPicker({
+    title: 'Select Curb Type',
+    options: [
+      { value:'1.50', label:'B6-18 (standard)' },
+      { value:'1.10', label:'B6-12' },
+      { value:'1.90', label:'B6-24' },
+      { value:'2.25', label:'Valley Gutter' }
+    ],
+    onPick: (value, label) => {
+      document.getElementById('curb-type').value = value;
+      curbPickerBtn.textContent = label;
+      calculate();
+      updateTotals();
+    }
+  });
+});
+
+function syncMaterialButtonLabel() {
+  const labels = { concrete:'Concrete', rock:'Rock', sand:'Sand', topsoil:'Topsoil', asphalt:'Asphalt' };
+  if (materialPickerBtn) materialPickerBtn.textContent = labels[materialSelect.value] || 'Select Material';
+}
+function syncBagButtonLabel() {
+  if (bagPickerBtn && bagSizeSelect) bagPickerBtn.textContent = `${bagSizeSelect.value} lb`;
+}
+function syncCurbButtonLabel() {
+  const opt = document.querySelector('#curb-type option:checked');
+  if (curbPickerBtn) curbPickerBtn.textContent = opt ? opt.textContent : 'Select Curb Type';
+}
+
+/* ---- DENSITY UI ---- */
+function syncDensityUI() {
+  const d = densityTonsPerYd[material];
+  const val = d ? Number(d).toFixed(2) : '1.35';
+  if (densitySlider) densitySlider.value = val;
+  if (densityNumber) densityNumber.value = val;
+  if (densityValue)  densityValue.textContent = d ? val : '—';
+}
+
+function clampDensity(v) {
+  return Math.round(Math.min(2.0, Math.max(0.5, v)) / 0.05) * 0.05;
+}
+
+function saveDensityForCurrentMaterial(next) {
+  const s = GlovesOn.Settings.load();
+  if (!s.materials) s.materials = {};
+  s.materials[material] = next;
+  GlovesOn.Settings.save(s);
+  densityTonsPerYd[material] = next;
+}
+
+densitySlider?.addEventListener('input', () => {
+  const next = clampDensity(Number(densitySlider.value));
+  if (densityNumber) densityNumber.value = next.toFixed(2);
+  if (densityValue)  densityValue.textContent = next.toFixed(2);
+  saveDensityForCurrentMaterial(next);
+  updateTotals();
+});
+
+densityNumber?.addEventListener('input', () => {
+  const next = clampDensity(Number(densityNumber.value));
+  if (densitySlider) densitySlider.value = next.toFixed(2);
+  if (densityValue)  densityValue.textContent = next.toFixed(2);
+  saveDensityForCurrentMaterial(next);
+  updateTotals();
+});
+
+/* ---- TRUCK CAPACITY BUTTONS ---- */
+function syncTruckCapacityButtons() {
+  document.querySelectorAll('[data-cap]').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-cap="${truckCapacity}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+/* ---- MATERIAL RULES ---- */
+function updateShapeButtonsForMaterial() {
+  const isConcrete    = (material === 'concrete');
+  const wasteAllowed  = (material === 'concrete' || material === 'asphalt');
+  const densityAllowed = ['rock','sand','topsoil','asphalt'].includes(material);
+
+  if (wasteWrap)   wasteWrap.style.display   = wasteAllowed  ? 'flex' : 'none';
+  if (densityWrap) densityWrap.classList.toggle('hidden', !densityAllowed);
+  if (densityAllowed) syncDensityUI();
+
+  if (roundingWrap) roundingWrap.style.display = (!isConcrete && askLoads) ? 'flex' : 'none';
+  if (roundingToggle && !isConcrete && askLoads) {
+    roundingToggle.textContent = roundUpLoads ? 'ROUND UP' : 'ROUND DOWN';
+    roundingToggle.classList.toggle('on', roundUpLoads);
+  }
+
+  if (tonsLineEl) tonsLineEl.style.display = isConcrete ? 'none' : 'block';
+  if (bagsWrap)   bagsWrap.classList.toggle('hidden', !isConcrete || !bagsEnabled);
+
+  const hideForTruck = ['wall','curb'];
+  document.querySelectorAll('[data-shape]').forEach(btn => {
+    const s = btn.getAttribute('data-shape');
+    btn.style.display = (!isConcrete && hideForTruck.includes(s)) ? 'none' : '';
+  });
+
+  if (!isConcrete && (currentShape === 'wall' || currentShape === 'curb')) {
+    currentShape = 'slab';
+    document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-shape="slab"]')?.classList.add('active');
+    continuous = false;
+    if (continuousToggle) { continuousToggle.textContent = 'OFF'; continuousToggle.classList.remove('on'); }
+    if (runsWrap) runsWrap.style.display = 'none';
+    document.querySelectorAll('.shape').forEach(s => s.classList.remove('active'));
+    document.querySelector('.slab')?.classList.add('active');
+  }
+
+  const labelsConcrete = { slab:'Slab', footing:'Footing', wall:'Wall / Column', curb:'Curb', approach:'Approach', column:'Column (round)' };
+  const labelsTruck    = { slab:'Pad / Area', footing:'Trench / Strip', approach:'Ditch / Taper', column:'Round Hole' };
+  document.querySelectorAll('[data-shape]').forEach(btn => {
+    const s = btn.getAttribute('data-shape');
+    btn.textContent = isConcrete
+      ? (labelsConcrete[s] || s)
+      : (labelsTruck[s] || labelsConcrete[s] || s);
+  });
+}
+
+/* ---- EVENT LISTENERS ---- */
+materialSelect?.addEventListener('change', () => {
+  material = materialSelect.value;
+  syncMaterialButtonLabel();
+  updateShapeButtonsForMaterial();
+  calculate();
+  updateTotals();
+});
+
+roundingToggle?.addEventListener('click', () => {
+  roundUpLoads = !roundUpLoads;
+  roundingToggle.textContent = roundUpLoads ? 'ROUND UP' : 'ROUND DOWN';
+  roundingToggle.classList.toggle('on', roundUpLoads);
+  updateTotals();
+});
+
+document.querySelectorAll('[data-shape]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentShape = btn.dataset.shape;
+    document.querySelectorAll('.shape').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.${currentShape}`)?.classList.add('active');
+    calculate();
+    updateTotals();
+  });
+});
+
+document.querySelectorAll('[data-cap]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-cap]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    truckCapacity = Number(btn.dataset.cap);
+    updateTotals();
+  });
+});
+
+continuousToggle?.addEventListener('click', () => {
+  continuous = !continuous;
+  continuousToggle.textContent = continuous ? 'ON' : 'OFF';
+  continuousToggle.classList.toggle('on', continuous);
+  if (runsWrap) runsWrap.style.display = continuous ? 'block' : 'none';
+  if (!continuous && runsInput) runsInput.value = 1;
+  calculate();
+  updateTotals();
+});
+
+document.querySelectorAll('input').forEach(input =>
+  input.addEventListener('input', () => { calculate(); updateTotals(); })
+);
+
+bagSizeSelect?.addEventListener('change', () => {
+  bagSizeLbs = Number(bagSizeSelect.value) || 80;
+  updateTotals();
+});
+
+addItemBtn?.addEventListener('click', () => {
+  if (!currentItemYards) return;
+  totalYards += currentItemYards;
+  updateTotals();
+});
+
+clearPourBtn?.addEventListener('click', () => {
+  totalYards = 0;
+  updateTotals();
+});
+
+/* ---- CALCULATE ---- */
+function resetCurrent() {
+  currentItemYards = 0;
+  if (currentYardsEl) currentYardsEl.textContent = '0.00 yd³';
+}
+
+function calculate() {
+  const wasteAllowed = (material === 'concrete' || material === 'asphalt');
+  const wastePct = wasteAllowed ? (Number(document.getElementById('waste')?.value) || 0) : 0;
+  const waste = wastePct / 100;
+
+  let cubicFeet = 0;
+
+  if (currentShape === 'slab') {
+    const L = Number(document.getElementById('slab-length')?.value);
+    const W = Number(document.getElementById('slab-width')?.value);
+    const T = Number(document.getElementById('slab-thickness')?.value) / 12;
+    if (!L || !W || !T) return resetCurrent();
+    cubicFeet = L * W * T;
+  }
+  if (currentShape === 'footing') {
+    const L = Number(document.getElementById('footing-length')?.value);
+    const W = Number(document.getElementById('footing-width')?.value) / 12;
+    const D = Number(document.getElementById('footing-depth')?.value) / 12;
+    const runs = continuous ? (Number(runsInput?.value) || 1) : 1;
+    if (!L || !W || !D) return resetCurrent();
+    cubicFeet = (L * runs) * W * D;
+  }
+  if (currentShape === 'wall') {
+    const L = Number(document.getElementById('wall-length')?.value);
+    const H = Number(document.getElementById('wall-height')?.value);
+    const T = Number(document.getElementById('wall-thickness')?.value) / 12;
+    if (!L || !H || !T) return resetCurrent();
+    cubicFeet = L * H * T;
+  }
+  if (currentShape === 'curb') {
+    const area = Number(document.getElementById('curb-type')?.value);
+    const L    = Number(document.getElementById('curb-length')?.value);
+    if (!area || !L) return resetCurrent();
+    cubicFeet = area * L;
+  }
+  if (currentShape === 'approach') {
+    const W  = Number(document.getElementById('approach-width')?.value);
+    const L  = Number(document.getElementById('approach-length')?.value);
+    const T1 = Number(document.getElementById('approach-top')?.value) / 12;
+    const T2 = Number(document.getElementById('approach-bottom')?.value) / 12;
+    if (!W || !L || !T1 || !T2) return resetCurrent();
+    cubicFeet = W * L * ((T1 + T2) / 2);
+  }
+  if (currentShape === 'column') {
+    const D = Number(document.getElementById('column-diameter')?.value) / 12;
+    const H = Number(document.getElementById('column-height')?.value);
+    const Q = Number(document.getElementById('column-qty')?.value) || 1;
+    if (!D || !H || !Q) return resetCurrent();
+    const r = D / 2;
+    cubicFeet = Math.PI * r * r * H * Q;
+  }
+
+  cubicFeet += cubicFeet * waste;
+  currentItemYards = cubicFeet / 27;
+  if (currentYardsEl) currentYardsEl.textContent = `${currentItemYards.toFixed(2)} yd³`;
+}
+
+function updateTotals() {
+  const isConcrete = (material === 'concrete');
+  const bufferMultiplier = (!isConcrete && overOrderPct > 0) ? (1 + overOrderPct / 100) : 1;
+  const displayYards = totalYards * bufferMultiplier;
+
+  if (totalYardsEl) totalYardsEl.textContent = `${displayYards.toFixed(2)} yd³`;
+
+  if (displayYards === 0) {
+    if (trucksEl)      trucksEl.textContent = '0 trucks';
+    if (remainderEl)   remainderEl.textContent = '';
+    if (tonsLineEl)    tonsLineEl.textContent = '';
+    if (bagsLineEl)    bagsLineEl.textContent = '';
+    return;
+  }
+
+  const rawLoads = displayYards / truckCapacity;
+  const loads    = isConcrete
+    ? Math.ceil(rawLoads)
+    : (roundUpLoads ? Math.ceil(rawLoads) : Math.floor(rawLoads));
+  const remainder = displayYards % truckCapacity;
+
+  if (trucksEl) trucksEl.textContent = `${loads} truck${loads !== 1 ? 's' : ''}`;
+
+  if (remainderEl) {
+    if (!isConcrete && !roundUpLoads && remainder) {
+      remainderEl.textContent = `Unassigned: ${remainder.toFixed(2)} yd³`;
+    } else {
+      remainderEl.textContent = remainder ? `Last load: ${remainder.toFixed(2)} yd³` : '';
+    }
+  }
+
+  const density = densityTonsPerYd[material];
+  if (tonsLineEl) {
+    tonsLineEl.textContent = (!isConcrete && density)
+      ? `Estimated: ${(displayYards * density).toFixed(1)} tons`
+      : '';
+  }
+
+  if (isConcrete && bagsEnabled && bagsLineEl) {
+    const yd3 = Number(totalYards) || 0;
+    if (yd3 > 0) {
+      const ft3 = yd3 * 27;
+      const yieldFt3 = BAG_YIELD_FT3[bagSizeLbs] || BAG_YIELD_FT3[80];
+      bagsLineEl.textContent = `Bag mix estimate: ~${Math.ceil(ft3 / yieldFt3)} bags (${bagSizeLbs} lb)`;
+    } else {
+      bagsLineEl.textContent = '';
+    }
+  } else if (bagsLineEl) {
+    bagsLineEl.textContent = '';
+  }
+}
+
+/* ---- SETTINGS SYNC ---- */
+function onReturnSync(fn) {
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fn(); });
+  window.addEventListener('pageshow', fn);
+  window.addEventListener('storage', e => { if (e.key?.includes('gloveson')) fn(); });
+}
+
+function syncCalculatorFromSettings() {
+  applySettingsToState();
+  syncMaterialButtonLabel();
+  syncTruckCapacityButtons();
+  syncBagButtonLabel();
+  syncCurbButtonLabel();
+  syncDensityUI();
+  updateShapeButtonsForMaterial();
+  calculate();
+  updateTotals();
+}
+
+onReturnSync(syncCalculatorFromSettings);
+
+/* ---- INIT ---- */
+syncMaterialButtonLabel();
+updateShapeButtonsForMaterial();
+syncTruckCapacityButtons();
+syncBagButtonLabel();
+syncCurbButtonLabel();
+syncDensityUI();
+calculate();
+updateTotals();
+</script>
+
+<!-- NAV SCRIPT -->
+<script>
+(function() {
+  const btn      = document.getElementById('hamburgerBtn');
+  const backdrop = document.getElementById('navBackdrop');
+  const drawer   = document.getElementById('navDrawer');
+  function open()  { btn.classList.add('open');    btn.setAttribute('aria-expanded','true');  backdrop.classList.add('open');    drawer.classList.add('open'); }
+  function close() { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); backdrop.classList.remove('open'); drawer.classList.remove('open'); }
+  btn.addEventListener('click', () => btn.classList.contains('open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+
+</body>
+</html>

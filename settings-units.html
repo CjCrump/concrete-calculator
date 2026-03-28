@@ -4,77 +4,128 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Units • Settings</title>
+  <title>GlovesOn | Units</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>Units</h1>
-    </header>
+<div class="app">
 
-    <div class="card">
-      <label>Length Entry</label>
-      <div class="segmented">
-        <button class="seg" data-length="ftin">Feet & Inches</button>
-        <button class="seg" data-length="decft">Decimal Feet</button>
-      </div>
+  <header class="app-header">
+    <div class="app-eyebrow">GlovesOn</div>
+    <h1 class="app-title">Units</h1>
+  </header>
 
-      <label style="margin-top:12px;">Thickness / Depth Entry</label>
-      <div class="segmented">
-        <button class="seg" data-thickness="in">Inches</button>
-        <button class="seg" data-thickness="ft">Feet</button>
-      </div>
-
-      <label style="margin-top:12px;">Weight Display</label>
-      <div class="segmented">
-        <button class="seg" data-weight="tons">Tons (US)</button>
-      </div>
-
-      <label style="margin-top:12px;">Tape Fraction Precision</label>
-      <div class="segmented">
-        <button class="seg" data-frac="16">1/16"</button>
-        <button class="seg" data-frac="8">1/8"</button>
-        <button class="seg" data-frac="4">1/4"</button>
-      </div>
-
-      <div class="row" style="margin-top:16px;">
-        <button class="toggle" id="backBtn">Back</button>
-        <button class="toggle on" id="saveBtn">Save</button>
-      </div>
-
-      <div class="muted" id="status" style="margin-top:10px;"></div>
+  <div class="card">
+    <label>Length Entry</label>
+    <div class="segmented">
+      <button class="seg" data-length="ftin">Feet &amp; Inches</button>
+      <button class="seg" data-length="decft">Decimal Feet</button>
     </div>
 
-    <!-- HAMBURGER BUTTON -->
-<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div class="nav-backdrop" id="navBackdrop"></div>
-<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
-  <div class="nav-drawer-title">Navigation</div>
-  <a href="index.html"><span class="nav-icon">🧮</span> Calculator</a>
-  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
-  <hr class="nav-drawer-divider" />
-  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
-  <a href="settings-materials.html"><span class="nav-icon">🪨</span> Material Presets</a>
-  <a href="settings-trucks.html"><span class="nav-icon">🚛</span> Truck Defaults</a>
-  <a href="settings-rounding.html"><span class="nav-icon">🔢</span> Rounding Rules</a>
-  <a href="settings-units.html"><span class="nav-icon">📏</span> Units</a>
-</nav>
+    <label style="margin-top:8px;">Thickness / Depth Entry</label>
+    <div class="segmented">
+      <button class="seg" data-thickness="in">Inches</button>
+      <button class="seg" data-thickness="ft">Feet</button>
+    </div>
+
+    <label style="margin-top:8px;">Weight Display</label>
+    <div class="segmented">
+      <button class="seg active" data-weight="tons">Tons (US)</button>
+    </div>
+
+    <label style="margin-top:8px;">Tape Fraction Precision</label>
+    <div class="segmented">
+      <button class="seg" data-frac="16">1/16"</button>
+      <button class="seg" data-frac="8">1/8"</button>
+      <button class="seg" data-frac="4">1/4"</button>
+    </div>
+
+    <div class="row" style="margin-top:8px;">
+      <button class="toggle" id="backBtn">Back</button>
+      <button class="toggle on" id="saveBtn">Save</button>
+    </div>
+    <div class="muted" id="status"></div>
   </div>
 
-  <script src="settings-store.js"></script>
-  <script src="settings-units.js"></script>
-  <script>
-    const _btn = document.getElementById('hamburgerBtn');
-    const _backdrop = document.getElementById('navBackdrop');
-    const _drawer = document.getElementById('navDrawer');
-    function openNav() { _btn.classList.add('open'); _btn.setAttribute('aria-expanded','true'); _backdrop.classList.add('open'); _drawer.classList.add('open'); }
-    function closeNav() { _btn.classList.remove('open'); _btn.setAttribute('aria-expanded','false'); _backdrop.classList.remove('open'); _drawer.classList.remove('open'); }
-    _btn.addEventListener('click', () => _btn.classList.contains('open') ? closeNav() : openNav());
-    _backdrop.addEventListener('click', closeNav);
-    _drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
-  </script>
+</div>
+
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
+  <div class="nav-wordmark"><div class="nav-wordmark-name">GlovesOn</div><div class="nav-wordmark-sub">Jobsite Companion</div></div>
+  <div class="nav-section-label">Tools</div>
+  <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+  <a href="calculator.html"><span class="nav-icon">🧮</span> Calculator</a>
+  <a href="converter.html"><span class="nav-icon">📐</span> Converter</a>
+  <a href="log.html"><span class="nav-icon">📋</span> Daily Log</a>
+  <a href="notes.html"><span class="nav-icon">📝</span> Notes</a>
+  <hr class="nav-divider" />
+  <div class="nav-section-label">Settings</div>
+  <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  <a href="settings-materials.html" class="sub">Material Presets</a>
+  <a href="settings-trucks.html" class="sub">Truck Defaults</a>
+  <a href="settings-rounding.html" class="sub">Rounding Rules</a>
+  <a href="settings-units.html" class="sub active">Units</a>
+  <div class="nav-footer">Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a></div>
+</nav>
+
+<script src="store.js"></script>
+<script>
+let s = GlovesOn.Settings.load();
+let lengthMode    = s.units.lengthMode;
+let thicknessUnit = s.units.thicknessUnit;
+let weightUnit    = s.units.weightUnit;
+let fracPrecision = s.rounding.fracPrecision;
+
+function render() {
+  document.querySelectorAll('[data-length]').forEach(b    => b.classList.toggle('active', b.dataset.length    === lengthMode));
+  document.querySelectorAll('[data-thickness]').forEach(b => b.classList.toggle('active', b.dataset.thickness === thicknessUnit));
+  document.querySelectorAll('[data-weight]').forEach(b    => b.classList.toggle('active', b.dataset.weight    === weightUnit));
+  document.querySelectorAll('[data-frac]').forEach(b      => b.classList.toggle('active', Number(b.dataset.frac) === Number(fracPrecision)));
+  document.getElementById('status').textContent = '';
+}
+
+document.querySelectorAll('[data-length]').forEach(b    => b.addEventListener('click', () => { lengthMode    = b.dataset.length;    render(); }));
+document.querySelectorAll('[data-thickness]').forEach(b => b.addEventListener('click', () => { thicknessUnit = b.dataset.thickness; render(); }));
+document.querySelectorAll('[data-weight]').forEach(b    => b.addEventListener('click', () => { weightUnit    = b.dataset.weight;    render(); }));
+document.querySelectorAll('[data-frac]').forEach(b      => b.addEventListener('click', () => { fracPrecision = Number(b.dataset.frac); render(); }));
+
+document.getElementById('saveBtn')?.addEventListener('click', () => {
+  s = GlovesOn.Settings.load();
+  s.units.lengthMode    = lengthMode;
+  s.units.thicknessUnit = thicknessUnit;
+  s.units.weightUnit    = weightUnit;
+  s.rounding.fracPrecision = fracPrecision;
+  GlovesOn.Settings.save(s);
+  document.getElementById('status').textContent = '✓ Saved.';
+});
+
+document.getElementById('backBtn')?.addEventListener('click', () => {
+  window.history.length > 1 ? history.back() : (location.href = 'settings.html');
+});
+
+function onReturnSync(fn) {
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fn(); });
+  window.addEventListener('pageshow', fn);
+}
+onReturnSync(() => {
+  s = GlovesOn.Settings.load();
+  lengthMode = s.units.lengthMode; thicknessUnit = s.units.thicknessUnit;
+  weightUnit = s.units.weightUnit; fracPrecision = s.rounding.fracPrecision;
+  render();
+});
+
+render();
+</script>
+<script>
+(function() {
+  const btn=document.getElementById('hamburgerBtn'),backdrop=document.getElementById('navBackdrop'),drawer=document.getElementById('navDrawer');
+  function open(){btn.classList.add('open');btn.setAttribute('aria-expanded','true');backdrop.classList.add('open');drawer.classList.add('open');}
+  function close(){btn.classList.remove('open');btn.setAttribute('aria-expanded','false');backdrop.classList.remove('open');drawer.classList.remove('open');}
+  btn.addEventListener('click',()=>btn.classList.contains('open')?close():open());
+  backdrop.addEventListener('click',close);
+  drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
+})();
+</script>
 </body>
 </html>

@@ -4,362 +4,88 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Concrete Calculator</title>
+  <meta name="description" content="GlovesOn — Jobsite Companion. Built for the jobsite. Calculator, converter, daily log, and notes — no account, no cloud." />
+  <title>GlovesOn — Jobsite Companion</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <!-- APP WRAPPER -->
-  <div class="app">
 
-    <!-- HEADER / SHAPE SELECTOR -->
-    <header>
-      <h1>Job Site Calculator</h1>
- <div class="row">
-  <div>
-    <label>Material</label>
+<div class="landing">
 
-    <!-- Big easy-mode picker button -->
-    <button id="materialPickerBtn" class="btn big-picker" type="button">
-      Concrete
-    </button>
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="landing-hero">
 
-    <!-- Keep real select (hidden) so the rest of app.js keeps working -->
-    <select id="material" class="hidden">
-      <option value="concrete">Concrete</option>
-      <option value="rock">Rock</option>
-      <option value="sand">Sand</option>
-      <option value="topsoil">Topsoil</option>
-      <option value="asphalt">Asphalt</option>
-    </select>
-  </div>
+    <div class="landing-wordmark">
+      <div class="landing-wordmark-name">Gloves<span>On</span></div>
+      <div class="landing-wordmark-sub">Jobsite Companion</div>
+    </div>
+
+    <p class="landing-tagline">Built for the jobsite.</p>
+
+    <div class="landing-ctas">
+      <a href="calculator.html" class="landing-cta-primary">🧮 Calculator</a>
+      <a href="converter.html"  class="landing-cta-secondary">📐 Converter</a>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       FEATURE GRID
+  ============================================================ -->
+  <section class="landing-features">
+
+    <div class="landing-features-title">Everything on the job</div>
+
+    <div class="feature-grid">
+      <a href="calculator.html" class="feature-tile linked">
+        <div class="feature-tile-icon">🧮</div>
+        <div class="feature-tile-label">Calculator</div>
+      </a>
+      <a href="converter.html" class="feature-tile linked">
+        <div class="feature-tile-icon">📐</div>
+        <div class="feature-tile-label">Converter</div>
+      </a>
+      <a href="log.html" class="feature-tile linked">
+        <div class="feature-tile-icon">📋</div>
+        <div class="feature-tile-label">Daily Log</div>
+      </a>
+      <a href="notes.html" class="feature-tile linked">
+        <div class="feature-tile-icon">📝</div>
+        <div class="feature-tile-label">Notes</div>
+      </a>
+      <div class="feature-tile">
+        <div class="feature-tile-icon">📴</div>
+        <div class="feature-tile-label">Works Offline</div>
+      </div>
+      <div class="feature-tile">
+        <div class="feature-tile-icon">🔒</div>
+        <div class="feature-tile-label">No Account</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       TRUST LINE
+  ============================================================ -->
+  <p class="landing-trust">
+    <strong>No account. No cloud.</strong><br />
+    Your data stays on your device — always.
+  </p>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="landing-footer">
+    <div class="landing-footer-version">GlovesOn v1.0</div>
+    <div class="landing-footer-credit">
+      Built by <a href="https://chanceitstudio.com" target="_blank" rel="noopener">ChanceIT Studio</a>
+    </div>
+  </footer>
+
 </div>
-
-      <div class="buttons">
-        <button class="btn active" data-shape="slab">Slab</button>
-        <button class="btn" data-shape="footing">Footing</button>
-        <button class="btn" data-shape="wall">Wall / Column</button>
-        <button class="btn" data-shape="curb">Curb</button>
-        <button class="btn" data-shape="approach">Approach</button>
-        <button class="btn" data-shape="column">Column (round)</button>
-      </div>
-
-    </header>
-
-    <!-- INPUT CARD -->
-    <div class="card">
-
-      <!-- SLAB INPUTS -->
-      <div class="shape slab active">
-        <div class="row">
-          <div>
-            <label>Length (ft)</label>
-            <input id="slab-length" type="number" />
-          </div>
-          <div>
-            <label>Width (ft)</label>
-            <input id="slab-width" type="number" />
-          </div>
-          <div>
-            <label>Thickness (in)</label>
-            <input id="slab-thickness" type="number" />
-          </div>
-        </div>
-      </div>
-
-      <!-- FOOTING INPUTS -->
-      <div class="shape footing">
-        <div class="row">
-          <div>
-            <label>Length per run (ft)</label>
-            <input id="footing-length" type="number" />
-          </div>
-          <div>
-            <label>Width (in)</label>
-            <input id="footing-width" type="number" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label>Depth (in)</label>
-            <input id="footing-depth" type="number" />
-          </div>
-          <div class="toggle-wrap">
-            <label>Continuous</label>
-            <button id="continuousToggle" class="toggle">OFF</button>
-          </div>
-        </div>
-
-        <div id="runsWrap" style="display:none;">
-          <label>Number of runs</label>
-          <input id="footing-runs" type="number" value="1" />
-        </div>
-      </div>
-
-      <!-- WALL / rectangular column INPUTS -->
-      <div class="shape wall">
-        <div class="row">
-          <div>
-            <label>Length (ft)</label>
-            <input id="wall-length" type="number" />
-          </div>
-          <div>
-            <label>Height (ft)</label>
-            <input id="wall-height" type="number" />
-          </div>
-          <div>
-            <label>Thickness (in)</label>
-            <input id="wall-thickness" type="number" />
-          </div>
-        </div>
-      </div>
-      <!-- curb inputs -->
-
-<div class="shape curb">
-        <div class="stack">
-        <label>Curb Type</label>
-
-<button id="curbPickerBtn" class="btn big-picker" type="button">B6-18 (standard)</button>
-
-<select id="curb-type" class="hidden">
-  <option value="1.50">B6-18 (standard)</option>
-  <option value="1.10">B6-12</option>
-  <option value="1.90">B6-24</option>
-  <option value="2.25">Valley Gutter</option>
-</select>
-    
-        </div>
-    
-    <div class="stack">
-            <label>Length (ft)</label>
-            <input id="curb-length" type="number" />
-    </div>
-</div>
-
-<!-- APPROACH INPUTS (TRAPEZOID PRISM) -->
-<div class="shape approach">
-  <div class="stack">
-    <label>Width (ft)</label>
-    <input id="approach-width" type="number" />
-  </div>
-
-  <div class="stack">
-    <label>Length (ft)</label>
-    <input id="approach-length" type="number" />
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Top thickness (in)</label>
-      <input id="approach-top" type="number" />
-    </div>
-    <div>
-      <label>Bottom thickness (in)</label>
-      <input id="approach-bottom" type="number" />
-    </div>
-  </div>
-</div>
-
-<!-- CIRCULAR COLUMN INPUTS -->
-<div class="shape column">
-  <div class="row">
-    <div>
-      <label>Diameter (in)</label>
-      <input id="column-diameter" type="number" />
-    </div>
-    <div>
-      <label>Height (ft)</label>
-      <input id="column-height" type="number" />
-    </div>
-  </div>
-
-  <div class="stack">
-    <label>Quantity</label>
-    <input id="column-qty" type="number" value="1" />
-  </div>
-</div>
-
-
-
-      <!-- COMMON SETTINGS -->
-
-    
-
-      <div class="row" id="roundingWrap" style="display:none;">
-        <div>
-          <label>Loads rounding</label>
-          <button class="btn toggle on" id="roundingToggle" type="button">ROUND UP</button>
-        </div>
-      </div>
-      <div class="row" id ="wasteWrap">
-        <div>
-          <label>Waste %</label>
-          <input id="waste" type="number" value="10" />
-        </div>
-      </div>
-<!-- Materials-only: Density (tons per yd³) -->
-<div class="row hidden" id="densityWrap">
-  <div>
-    <label>Density (tons/yd³)</label>
-    <input id="densitySlider" type="range" min="0.5" max="2" step="0.05" />
-    <div class="row" style="margin-top:8px;">
-      <div style="flex:1;">
-        <input id="densityNumber" type="number" min="0.5" max="2" step="0.05" inputmode="decimal" />
-      </div>
-      <div style="flex:1; display:flex; align-items:center; justify-content:center; font-weight:900;">
-        <span id="densityValue">—</span>
-      </div>
-    </div>
-    <div class="muted">Used for estimated tons. Save per material in Settings → Material Presets.</div>
-  </div>
-</div>
-
-      <label>Truck Capacity (yd³)</label>
-      <div class="buttons">
-        <button class="btn active" data-cap="9">9 yd³</button>
-        <button class="btn" data-cap="10">10 yd³</button>
-      </div>
-    </div>
-
-    <!-- RESULTS -->
-    <div class="results">
-      <div class="results-card">
-
-        <div class="muted">Current item</div>
-        <div class="yards" id="currentYards">0.00 yd³</div>
-
-        <button class="btn" id="addItemBtn">➕ Add to pour</button>
-
-        <hr />
-
-        <div class="muted">Total pour</div>
-        <div class="yards" id="totalYards">0.00 yd³</div>
-        <!-- Concrete-only: Bag Mix estimator (hidden unless enabled + Concrete selected) -->
-<div id="bagsWrap" class="hidden">
-  <hr />
-
-  <div class="row">
-    <div>
-      <label>Bag size</label>
-      
-      <div class="muted">Counts round up (you can’t buy part of a bag).</div>
-    </div><button id="bagPickerBtn" class="btn big-picker" type="button">80 lb</button>
-
-<select id="bagSize" class="hidden">
-  <option value="80">80 lb</option>
-  <option value="60">60 lb</option>
-  <option value="50">50 lb</option>
-  <option value="40">40 lb</option>
-  <option value="90">90 lb</option>
-</select>
-
-
-    <!-- =====================================================
-         FUTURE (parked for later):
-         Admixtures UI + presets. Keep IDs reserved.
-         IMPORTANT: We comment ONLY this block (NOT closing tags).
-    ====================================================== -->
-    <!--
-    <div class="toggle-wrap">
-      <label>Admixtures</label>
-      <button id="admixtureToggle" class="toggle">OFF</button>
-      <div class="muted">Adds an estimated dosage line.</div>
-    </div>
-    -->
-  </div>
-
-  <div class="muted" id="bagsLine"></div>
-
-  <!-- Keep reserved for later (safe even if empty) -->
-  <div class="muted" id="admixtureLine"></div>
-</div>
-
-
-        <div class="trucks" id="trucks">0 trucks</div>
-        <div class="muted" id="tonsLine" style="display:none;"></div>
-        <div class="muted" id="remainder"></div>
-
-        <button class="btn" id="clearPourBtn">🗑 Clear pour</button>
-      </div>
-    </div>
-
-  </div>
-
-<!-- HAMBURGER BUTTON -->
-<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-
-<!-- BACKDROP -->
-<div class="nav-backdrop" id="navBackdrop"></div>
-
-<!-- DRAWER -->
-<nav class="nav-drawer" id="navDrawer" aria-label="Site navigation">
-  <div class="nav-drawer-title">Navigation</div>
-  <a href="index.html" id="navCalc"><span class="nav-icon">🧮</span> Calculator</a>
-  <a href="converter.html" id="navConv"><span class="nav-icon">📐</span> Converter</a>
-  <hr class="nav-drawer-divider" />
-  <a href="settings.html" id="navSettings"><span class="nav-icon">⚙️</span> Settings</a>
-  <a href="settings-materials.html"><span class="nav-icon">🪨</span> Material Presets</a>
-  <a href="settings-trucks.html"><span class="nav-icon">🚛</span> Truck Defaults</a>
-  <a href="settings-rounding.html"><span class="nav-icon">🔢</span> Rounding Rules</a>
-  <a href="settings-units.html"><span class="nav-icon">📏</span> Units</a>
-</nav>
-<!-- =====================================================
-     EASY MODE PICKER MODAL (re-usable)
-     - full-screen
-     - big buttons
-     - forces a selection to close
-===================================================== -->
-<div id="pickerOverlay" class="picker-overlay hidden" role="dialog" aria-modal="true">
-  <div class="picker-sheet">
-    <div class="picker-title" id="pickerTitle">Select</div>
-    <div class="picker-options" id="pickerOptions"></div>
-  </div>
-</div>
-
-<!--scripts-->
-
-<script src="settings-store.js"></script>
-<script src="app.js"></script>
-
-<!--active tab listener-->
-
-<script>
-  // Mark active nav link
-  const _path = location.pathname.split('/').pop() || 'index.html';
-  const _map = {
-    "index.html": "navCalc",
-    "converter.html": "navConv",
-    "settings.html": "navSettings"
-  };
-  const _el = document.getElementById(_map[_path] || "navCalc");
-  if (_el) _el.classList.add("active");
-
-  // Hamburger drawer
-  const _btn = document.getElementById('hamburgerBtn');
-  const _backdrop = document.getElementById('navBackdrop');
-  const _drawer = document.getElementById('navDrawer');
-
-  function openNav() {
-    _btn.classList.add('open');
-    _btn.setAttribute('aria-expanded', 'true');
-    _backdrop.classList.add('open');
-    _drawer.classList.add('open');
-  }
-  function closeNav() {
-    _btn.classList.remove('open');
-    _btn.setAttribute('aria-expanded', 'false');
-    _backdrop.classList.remove('open');
-    _drawer.classList.remove('open');
-  }
-
-  _btn.addEventListener('click', () => _btn.classList.contains('open') ? closeNav() : openNav());
-  _backdrop.addEventListener('click', closeNav);
-  _drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
-</script>
 
 </body>
 </html>
-
