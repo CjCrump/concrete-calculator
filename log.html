@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#0c1220" />
   <title>GlovesOn | Daily Log</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -67,23 +68,69 @@
   </div>
 
   <!-- ============================================================
-       PERIOD SETTINGS
+       PAY PERIOD SETUP
+       - Shows setup card on first use (no saved config)
+       - Collapses to locked summary row once configured
+       - Unlock button reopens setup
+  ============================================================ -->
+
+  <!-- LOCKED STATE (shown when config is saved) -->
+  <div class="card" id="periodLockedCard" style="display:none;">
+    <div class="section-header" style="margin-bottom:0;">
+      <div>
+        <div class="section-title" style="margin-bottom:3px;">Pay Period</div>
+        <div class="muted" id="periodLockedLabel">—</div>
+      </div>
+      <button class="btn ghost" id="unlockPeriodBtn" type="button"
+        style="flex:0 0 auto;min-height:36px;padding:8px 14px;font-size:0.85rem;">
+        🔓 Change
+      </button>
+    </div>
+  </div>
+
+  <!-- SETUP STATE (shown on first use or when unlocked) -->
+  <div class="card" id="periodSetupCard">
+    <div class="section-title" style="margin-bottom:4px;">Set Up Pay Period</div>
+    <div class="muted" style="margin-bottom:4px;">Configure once. Used to calculate period totals.</div>
+
+    <label>Pay Interval</label>
+    <div class="segmented">
+      <button class="seg active" data-interval="weekly">Weekly</button>
+      <button class="seg" data-interval="biweekly">Bi-Weekly</button>
+      <button class="seg" data-interval="monthly">Monthly</button>
+    </div>
+
+    <!-- Start day: shown for weekly + bi-weekly -->
+    <div id="startDayWrap" class="stack">
+      <label>Period Starts On</label>
+      <div class="segmented" id="startDayBtns">
+        <button class="seg" data-day="1">Mon</button>
+        <button class="seg" data-day="2">Tue</button>
+        <button class="seg" data-day="3">Wed</button>
+        <button class="seg" data-day="4">Thu</button>
+        <button class="seg" data-day="5">Fri</button>
+        <button class="seg" data-day="6">Sat</button>
+        <button class="seg active" data-day="0">Sun</button>
+      </div>
+    </div>
+
+    <!-- Start date: shown for monthly -->
+    <div id="startDateWrap" class="stack hidden">
+      <label>Period Starts on Day of Month</label>
+      <div class="segmented" style="flex-wrap:wrap;gap:4px;height:auto;padding:6px;" id="startDateBtns">
+        <!-- 1–28 populated by JS -->
+      </div>
+    </div>
+
+    <button class="btn primary" id="savePeriodBtn" type="button">💾 Save Pay Period</button>
+    <div class="muted" id="periodSetupStatus"></div>
+  </div>
+
+  <!-- ============================================================
+       OT RULE
   ============================================================ -->
   <div class="card">
-    <label>Pay Period</label>
-    <div class="segmented">
-      <button class="seg active" data-period="thisweek">This Week</button>
-      <button class="seg" data-period="lastweek">Last Week</button>
-      <button class="seg" data-period="biweek">Bi-Week</button>
-      <button class="seg" data-period="custom">Custom</button>
-    </div>
-
-    <div id="customRangeWrap" class="hidden row">
-      <div><label>From</label><input id="customFrom" type="date" /></div>
-      <div><label>To</label><input id="customTo" type="date" /></div>
-    </div>
-
-    <label style="margin-top:4px;">Overtime Rule</label>
+    <label>Overtime Rule</label>
     <div class="segmented">
       <button class="seg active" data-ot="daily">Over 8 hrs / day</button>
       <button class="seg" data-ot="weekly">Over 40 hrs / week</button>
@@ -156,80 +203,81 @@
   </div>
 </nav>
 
+
 <script src="store.js"></script>
 <script>
 /* ============================================================
    GlovesOn Daily Log
    ============================================================ */
 
-/* ---- STATE ---- */
-let editingId   = null;    // null = new entry, string = editing existing
-let lunchTaken  = false;   // false = worked through, true = took lunch (−30 min)
+/* ---- STORAGE KEYS ---- */
+const PAY_PERIOD_KEY = 'gloveson_pay_period_v1';
+const OT_RULE_KEY    = 'gloveson_ot_rule_v1';
+const TK_KEY         = 'gloveson_last_timekeeper';
 
-/* ---- PERSIST LOG PREFS (ot rule + pay period) ---- */
-const LOG_PREF_KEY = 'gloveson_log_prefs_v1';
-
-function loadLogPrefs() {
-  try {
-    const raw = localStorage.getItem(LOG_PREF_KEY);
-    return raw ? JSON.parse(raw) : { otRule: 'daily', payPeriod: 'thisweek' };
-  } catch { return { otRule: 'daily', payPeriod: 'thisweek' }; }
+/* ---- PAY PERIOD CONFIG ---- */
+function loadPayPeriod() {
+  try { const r = localStorage.getItem(PAY_PERIOD_KEY); return r ? JSON.parse(r) : null; }
+  catch { return null; }
 }
+function savePayPeriod(cfg) { localStorage.setItem(PAY_PERIOD_KEY, JSON.stringify(cfg)); }
+function loadOtRule()       { return localStorage.getItem(OT_RULE_KEY) || 'daily'; }
+function saveOtRule(rule)   { localStorage.setItem(OT_RULE_KEY, rule); }
 
-function saveLogPrefs(prefs) {
-  localStorage.setItem(LOG_PREF_KEY, JSON.stringify(prefs));
-}
-
-const logPrefs = loadLogPrefs();
-let currentOtRule    = logPrefs.otRule    || 'daily';
-let currentPayPeriod = logPrefs.payPeriod || 'thisweek';
-
-/* ---- TIMEKEEPER PERSISTENCE ---- */
-const TK_KEY = 'gloveson_last_timekeeper';
+/* ---- TIMEKEEPER ---- */
 function loadLastTimekeeper() { return localStorage.getItem(TK_KEY) || ''; }
-function saveLastTimekeeper(name) { if (name) localStorage.setItem(TK_KEY, name); }
+function saveLastTimekeeper(n) { if (n) localStorage.setItem(TK_KEY, n); }
+
+/* ---- STATE ---- */
+let editingId     = null;
+let lunchTaken    = false;
+let currentOtRule = loadOtRule();
+let payPeriodCfg  = loadPayPeriod();
 
 /* ---- DATE HELPERS ---- */
 function todayISO() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-function getMondayOfWeek(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  const day = d.getDay(); // 0=Sun
-  const diff = (day === 0) ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().slice(0, 10);
+function addDays(iso, n) {
+  const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0,10);
+}
+function isoYMD(y, m, day) {
+  return `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 }
 
-function getPeriodRange(period, customFrom, customTo) {
-  const today = todayISO();
-  const monday = getMondayOfWeek(today);
+function getPeriodRange(cfg) {
+  const today = new Date(todayISO() + 'T12:00:00');
+  if (cfg.interval === 'weekly') {
+    const diff = (today.getDay() - cfg.startDay + 7) % 7;
+    const from = new Date(today); from.setDate(from.getDate() - diff);
+    return { from: from.toISOString().slice(0,10), to: addDays(from.toISOString().slice(0,10), 6) };
+  }
+  if (cfg.interval === 'biweekly') {
+    const diff = (today.getDay() - cfg.startDay + 7) % 7;
+    const anchor = new Date(today); anchor.setDate(anchor.getDate() - diff);
+    const from = anchor.toISOString().slice(0,10) <= todayISO() ? anchor.toISOString().slice(0,10) : addDays(anchor.toISOString().slice(0,10), -14);
+    return { from, to: addDays(from, 13) };
+  }
+  if (cfg.interval === 'monthly') {
+    const y = today.getFullYear(), m = today.getMonth() + 1, sd = cfg.startDate;
+    let fy = y, fm = m;
+    if (today.getDate() < sd) { fm--; if (fm < 1) { fm = 12; fy--; } }
+    const from = isoYMD(fy, fm, sd);
+    let tm = fm + 1, ty = fy; if (tm > 12) { tm = 1; ty++; }
+    return { from, to: addDays(isoYMD(ty, tm, sd), -1) };
+  }
+  const diff = (today.getDay() === 0) ? -6 : 1 - today.getDay();
+  const from = new Date(today); from.setDate(from.getDate() + diff);
+  return { from: from.toISOString().slice(0,10), to: addDays(from.toISOString().slice(0,10), 6) };
+}
 
-  if (period === 'thisweek') {
-    const sun = new Date(monday + 'T12:00:00');
-    sun.setDate(sun.getDate() + 6);
-    return { from: monday, to: sun.toISOString().slice(0,10) };
-  }
-  if (period === 'lastweek') {
-    const lastMon = new Date(monday + 'T12:00:00');
-    lastMon.setDate(lastMon.getDate() - 7);
-    const lastSun = new Date(lastMon);
-    lastSun.setDate(lastSun.getDate() + 6);
-    return { from: lastMon.toISOString().slice(0,10), to: lastSun.toISOString().slice(0,10) };
-  }
-  if (period === 'biweek') {
-    const twoWkAgo = new Date(monday + 'T12:00:00');
-    twoWkAgo.setDate(twoWkAgo.getDate() - 7);
-    const sun = new Date(monday + 'T12:00:00');
-    sun.setDate(sun.getDate() + 6);
-    return { from: twoWkAgo.toISOString().slice(0,10), to: sun.toISOString().slice(0,10) };
-  }
-  if (period === 'custom') {
-    return { from: customFrom || monday, to: customTo || today };
-  }
-  return { from: monday, to: today };
+function fallbackRange() {
+  const today = new Date(todayISO() + 'T12:00:00');
+  const diff  = (today.getDay() === 0) ? -6 : 1 - today.getDay();
+  const from  = new Date(today); from.setDate(from.getDate() + diff);
+  return { from: from.toISOString().slice(0,10), to: addDays(from.toISOString().slice(0,10), 6) };
 }
 
 function formatPeriodLabel(from, to) {
@@ -237,251 +285,229 @@ function formatPeriodLabel(from, to) {
   return `${fmt(from)} – ${fmt(to)}`;
 }
 
-/* ---- TIME HELPERS ---- */
-function timeToDecimal(timeStr) {
-  if (!timeStr) return null;
-  const [h, m] = timeStr.split(':').map(Number);
-  return h + m / 60;
+function describePayPeriod(cfg) {
+  if (!cfg) return '—';
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const ord  = n => { const s=['th','st','nd','rd'], v=n%100; return s[(v-20)%10]||s[v]||s[0]; };
+  if (cfg.interval === 'weekly')   return `Weekly · starts ${days[cfg.startDay]}`;
+  if (cfg.interval === 'biweekly') return `Bi-Weekly · starts ${days[cfg.startDay]}`;
+  if (cfg.interval === 'monthly')  return `Monthly · starts the ${cfg.startDate}${ord(cfg.startDate)}`;
+  return '—';
 }
 
+/* ---- TIME HELPERS ---- */
+function timeToDecimal(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number); return h + m / 60;
+}
 function calcRawHours(start, end, lunch) {
-  const s = timeToDecimal(start);
-  const e = timeToDecimal(end);
+  const s = timeToDecimal(start), e = timeToDecimal(end);
   if (s === null || e === null) return 0;
-  let raw = e - s;
-  if (raw <= 0) raw += 24; // overnight
-  if (lunch) raw -= 0.5;
+  let raw = e - s; if (raw <= 0) raw += 24; if (lunch) raw -= 0.5;
   return Math.max(0, raw);
 }
-
 function decimalToHM(dec) {
-  const h = Math.floor(dec);
-  const m = Math.round((dec - h) * 60);
+  const h = Math.floor(dec), m = Math.round((dec - h) * 60);
   return `${h}:${String(m).padStart(2,'0')}`;
 }
 
 /* ---- OT CALC ---- */
 function calcOT_Daily(entries) {
   let reg = 0, ot = 0;
-  entries.forEach(e => {
-    const raw = calcRawHours(e.start, e.end, e.lunch);
-    reg += Math.min(raw, 8);
-    ot  += Math.max(0, raw - 8);
-  });
+  entries.forEach(e => { const r = calcRawHours(e.start, e.end, e.lunch); reg += Math.min(r,8); ot += Math.max(0,r-8); });
   return { reg, ot };
 }
-
 function calcOT_Weekly(entries) {
-  // Sort ascending
-  const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
-  let reg = 0, ot = 0, runningReg = 0;
+  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));
+  let reg = 0, ot = 0, run = 0;
   sorted.forEach(e => {
-    const raw = calcRawHours(e.start, e.end, e.lunch);
-    const canReg = Math.max(0, 40 - runningReg);
-    const entryReg = Math.min(raw, canReg);
-    const entryOT  = Math.max(0, raw - canReg);
-    reg += entryReg;
-    ot  += entryOT;
-    runningReg += raw;
+    const r = calcRawHours(e.start, e.end, e.lunch);
+    const can = Math.max(0, 40 - run);
+    reg += Math.min(r, can); ot += Math.max(0, r - can); run += r;
   });
   return { reg, ot };
 }
 
 /* ---- DOM REFS ---- */
-const entryJob       = document.getElementById('entryJob');
+const entryJob        = document.getElementById('entryJob');
 const entryTimekeeper = document.getElementById('entryTimekeeper');
-const entryDate      = document.getElementById('entryDate');
-const entryStart     = document.getElementById('entryStart');
-const entryEnd       = document.getElementById('entryEnd');
+const entryDate       = document.getElementById('entryDate');
+const entryStart      = document.getElementById('entryStart');
+const entryEnd        = document.getElementById('entryEnd');
 const lunchThroughBtn = document.getElementById('lunchThrough');
-const lunchTookBtn   = document.getElementById('lunchTook');
-const saveEntryBtn   = document.getElementById('saveEntryBtn');
-const cancelEditBtn  = document.getElementById('cancelEditBtn');
-const formStatus     = document.getElementById('formStatus');
-const formTitle      = document.getElementById('formTitle');
-const entryListEl    = document.getElementById('entryList');
-const summaryRegular = document.getElementById('summaryRegular');
-const summaryOT      = document.getElementById('summaryOT');
-const summaryDays    = document.getElementById('summaryDays');
-const periodLabel    = document.getElementById('periodLabel');
-const customRangeWrap = document.getElementById('customRangeWrap');
-const customFrom     = document.getElementById('customFrom');
-const customTo       = document.getElementById('customTo');
+const lunchTookBtn    = document.getElementById('lunchTook');
+const saveEntryBtn    = document.getElementById('saveEntryBtn');
+const cancelEditBtn   = document.getElementById('cancelEditBtn');
+const formStatus      = document.getElementById('formStatus');
+const formTitle       = document.getElementById('formTitle');
+const entryListEl     = document.getElementById('entryList');
+const summaryRegular  = document.getElementById('summaryRegular');
+const summaryOT       = document.getElementById('summaryOT');
+const summaryDays     = document.getElementById('summaryDays');
+const periodLabel     = document.getElementById('periodLabel');
+const periodLockedCard  = document.getElementById('periodLockedCard');
+const periodLockedLabel = document.getElementById('periodLockedLabel');
+const unlockPeriodBtn   = document.getElementById('unlockPeriodBtn');
+const periodSetupCard   = document.getElementById('periodSetupCard');
+const savePeriodBtn     = document.getElementById('savePeriodBtn');
+const periodSetupStatus = document.getElementById('periodSetupStatus');
+const startDayWrap      = document.getElementById('startDayWrap');
+const startDateWrap     = document.getElementById('startDateWrap');
 
-/* ---- FORM ---- */
-function resetForm() {
-  editingId = null;
-  lunchTaken = false;
-  entryJob.value        = '';
-  entryTimekeeper.value = loadLastTimekeeper();
-  entryDate.value       = todayISO();
-  entryStart.value      = '';
-  entryEnd.value        = '';
-  lunchThroughBtn.classList.add('active');
-  lunchTookBtn.classList.remove('active');
-  cancelEditBtn.classList.add('hidden');
-  formTitle.textContent = 'New Entry';
-  formStatus.textContent = '';
-}
-
-function populateForm(entry) {
-  editingId             = entry.id;
-  lunchTaken            = entry.lunch;
-  entryJob.value        = entry.job || '';
-  entryTimekeeper.value = entry.timekeeper || '';
-  entryDate.value       = entry.date || todayISO();
-  entryStart.value      = entry.start || '';
-  entryEnd.value        = entry.end || '';
-  lunchThroughBtn.classList.toggle('active', !lunchTaken);
-  lunchTookBtn.classList.toggle('active', lunchTaken);
-  cancelEditBtn.classList.remove('hidden');
-  formTitle.textContent  = 'Edit Entry';
-  formStatus.textContent = '';
-  // Scroll to top of form
-  document.getElementById('entryFormCard').scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-lunchThroughBtn.addEventListener('click', () => {
-  lunchTaken = false;
-  lunchThroughBtn.classList.add('active');
-  lunchTookBtn.classList.remove('active');
-});
-lunchTookBtn.addEventListener('click', () => {
-  lunchTaken = true;
-  lunchTookBtn.classList.add('active');
-  lunchThroughBtn.classList.remove('active');
-});
-
-saveEntryBtn.addEventListener('click', () => {
-  const job   = entryJob.value.trim();
-  const tk    = entryTimekeeper.value.trim();
-  const date  = entryDate.value;
-  const start = entryStart.value;
-  const end   = entryEnd.value;
-
-  if (!job || !date || !start || !end) {
-    formStatus.textContent = '⚠ Job, date, start, and end are required.';
-    return;
+/* ---- BUILD MONTH DATE BUTTONS (1–28) ---- */
+(function() {
+  const c = document.getElementById('startDateBtns');
+  for (let i = 1; i <= 28; i++) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'seg'; b.dataset.startdate = i; b.textContent = i;
+    b.style.cssText = 'flex:0 0 auto;min-width:42px;min-height:40px;font-size:0.85rem;';
+    c.appendChild(b);
   }
+})();
 
-  saveLastTimekeeper(tk);
+/* ---- SETUP STATE ---- */
+let setupInterval  = 'weekly';
+let setupStartDay  = 0;
+let setupStartDate = 1;
 
-  const entry = {
-    id:          editingId || GlovesOn.uid(),
-    job, timekeeper: tk, date, start, end,
-    lunch: lunchTaken
-  };
+if (payPeriodCfg) {
+  setupInterval  = payPeriodCfg.interval  || 'weekly';
+  setupStartDay  = payPeriodCfg.startDay  ?? 0;
+  setupStartDate = payPeriodCfg.startDate || 1;
+}
 
-  GlovesOn.Log.save(entry);
-  resetForm();
-  formStatus.textContent = '✓ Saved.';
-  setTimeout(() => { formStatus.textContent = ''; }, 1800);
+function syncIntervalUI() {
+  document.querySelectorAll('[data-interval]').forEach(b => b.classList.toggle('active', b.dataset.interval === setupInterval));
+  const isMonthly = setupInterval === 'monthly';
+  startDayWrap.classList.toggle('hidden', isMonthly);
+  startDateWrap.classList.toggle('hidden', !isMonthly);
+}
+function syncStartDayUI() {
+  document.querySelectorAll('[data-day]').forEach(b => b.classList.toggle('active', Number(b.dataset.day) === setupStartDay));
+}
+function syncStartDateUI() {
+  document.querySelectorAll('[data-startdate]').forEach(b => b.classList.toggle('active', Number(b.dataset.startdate) === setupStartDate));
+}
+
+document.querySelectorAll('[data-interval]').forEach(b => b.addEventListener('click', () => { setupInterval = b.dataset.interval; syncIntervalUI(); }));
+document.getElementById('startDayBtns').addEventListener('click', e => {
+  const b = e.target.closest('[data-day]'); if (!b) return;
+  setupStartDay = Number(b.dataset.day); syncStartDayUI();
+});
+document.getElementById('startDateBtns').addEventListener('click', e => {
+  const b = e.target.closest('[data-startdate]'); if (!b) return;
+  setupStartDate = Number(b.dataset.startdate); syncStartDateUI();
+});
+
+savePeriodBtn.addEventListener('click', () => {
+  payPeriodCfg = { interval: setupInterval, startDay: setupStartDay, startDate: setupStartDate };
+  savePayPeriod(payPeriodCfg);
+  periodSetupStatus.textContent = '✓ Saved.';
+  setTimeout(() => { periodSetupStatus.textContent = ''; }, 1500);
+  showLockedState();
   renderAll();
 });
 
-cancelEditBtn.addEventListener('click', () => {
-  resetForm();
-  renderAll();
-});
+unlockPeriodBtn.addEventListener('click', showSetupState);
 
-/* ---- PAY PERIOD + OT RULE CONTROLS ---- */
-document.querySelectorAll('[data-period]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPayPeriod = btn.dataset.period;
-    customRangeWrap.classList.toggle('hidden', currentPayPeriod !== 'custom');
-    saveLogPrefs({ otRule: currentOtRule, payPeriod: currentPayPeriod });
-    renderAll();
-  });
-});
+function showLockedState() {
+  periodLockedCard.style.display = '';
+  periodSetupCard.style.display  = 'none';
+  periodLockedLabel.textContent  = describePayPeriod(payPeriodCfg);
+}
+function showSetupState() {
+  periodLockedCard.style.display = 'none';
+  periodSetupCard.style.display  = '';
+  syncIntervalUI(); syncStartDayUI(); syncStartDateUI();
+}
 
+/* ---- OT RULE ---- */
 document.querySelectorAll('[data-ot]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('[data-ot]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentOtRule = btn.dataset.ot;
-    saveLogPrefs({ otRule: currentOtRule, payPeriod: currentPayPeriod });
-    renderAll();
+    btn.classList.add('active'); currentOtRule = btn.dataset.ot;
+    saveOtRule(currentOtRule); renderAll();
   });
 });
 
-[customFrom, customTo].forEach(el => el?.addEventListener('change', renderAll));
+/* ---- ENTRY FORM ---- */
+function resetForm() {
+  editingId = null; lunchTaken = false;
+  entryJob.value = ''; entryTimekeeper.value = loadLastTimekeeper();
+  entryDate.value = todayISO(); entryStart.value = ''; entryEnd.value = '';
+  lunchThroughBtn.classList.add('active'); lunchTookBtn.classList.remove('active');
+  cancelEditBtn.classList.add('hidden');
+  formTitle.textContent = 'New Entry'; formStatus.textContent = '';
+}
 
-/* ---- DELETE with double-tap confirm ---- */
+function populateForm(entry) {
+  editingId = entry.id; lunchTaken = entry.lunch;
+  entryJob.value = entry.job || ''; entryTimekeeper.value = entry.timekeeper || '';
+  entryDate.value = entry.date || todayISO(); entryStart.value = entry.start || ''; entryEnd.value = entry.end || '';
+  lunchThroughBtn.classList.toggle('active', !lunchTaken);
+  lunchTookBtn.classList.toggle('active', lunchTaken);
+  cancelEditBtn.classList.remove('hidden');
+  formTitle.textContent = 'Edit Entry'; formStatus.textContent = '';
+  document.getElementById('entryFormCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+lunchThroughBtn.addEventListener('click', () => { lunchTaken = false; lunchThroughBtn.classList.add('active'); lunchTookBtn.classList.remove('active'); });
+lunchTookBtn.addEventListener('click',    () => { lunchTaken = true;  lunchTookBtn.classList.add('active'); lunchThroughBtn.classList.remove('active'); });
+
+saveEntryBtn.addEventListener('click', () => {
+  const job = entryJob.value.trim(), tk = entryTimekeeper.value.trim(),
+        date = entryDate.value, start = entryStart.value, end = entryEnd.value;
+  if (!job || !date || !start || !end) { formStatus.textContent = '⚠ Job, date, start, and end are required.'; return; }
+  saveLastTimekeeper(tk);
+  GlovesOn.Log.save({ id: editingId || GlovesOn.uid(), job, timekeeper: tk, date, start, end, lunch: lunchTaken });
+  resetForm(); formStatus.textContent = '✓ Saved.';
+  setTimeout(() => { formStatus.textContent = ''; }, 1800);
+  renderAll();
+});
+cancelEditBtn.addEventListener('click', () => { resetForm(); renderAll(); });
+
+/* ---- DELETE double-tap ---- */
 const deleteTimers = {};
-
 function armDelete(id, btn) {
   if (deleteTimers[id]) {
-    // Second tap — delete
-    clearTimeout(deleteTimers[id]);
-    delete deleteTimers[id];
-    GlovesOn.Log.remove(id);
-    renderAll();
+    clearTimeout(deleteTimers[id]); delete deleteTimers[id];
+    GlovesOn.Log.remove(id); renderAll();
   } else {
-    // First tap — arm
-    btn.classList.add('danger');
-    btn.title = 'Tap again to confirm delete';
-    deleteTimers[id] = setTimeout(() => {
-      delete deleteTimers[id];
-      btn.classList.remove('danger');
-      btn.title = 'Delete';
-    }, 3000);
+    btn.classList.add('danger'); btn.title = 'Tap again to confirm';
+    deleteTimers[id] = setTimeout(() => { delete deleteTimers[id]; btn.classList.remove('danger'); btn.title = 'Delete'; }, 3000);
   }
 }
 
 /* ---- RENDER ---- */
 function renderAll() {
-  const from = customFrom?.value;
-  const to   = customTo?.value;
-  const range = getPeriodRange(currentPayPeriod, from, to);
+  const range = payPeriodCfg ? getPeriodRange(payPeriodCfg) : fallbackRange();
   const allEntries = GlovesOn.Log.getAll();
-
-  // Filter to period
   const inPeriod = allEntries.filter(e => e.date >= range.from && e.date <= range.to);
-
-  // Summary
-  const { reg, ot } = currentOtRule === 'daily'
-    ? calcOT_Daily(inPeriod)
-    : calcOT_Weekly(inPeriod);
+  const { reg, ot } = currentOtRule === 'daily' ? calcOT_Daily(inPeriod) : calcOT_Weekly(inPeriod);
 
   summaryRegular.textContent = decimalToHM(reg);
   summaryOT.textContent      = decimalToHM(ot);
   summaryDays.textContent    = inPeriod.length;
   periodLabel.textContent    = formatPeriodLabel(range.from, range.to);
 
-  // Entry list
   if (allEntries.length === 0) {
-    entryListEl.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">📋</div>
-        <div class="empty-state-text">No entries yet.<br />Fill out the form above to add your first entry.</div>
-      </div>`;
+    entryListEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No entries yet.<br />Fill out the form above to add your first entry.</div></div>';
     return;
   }
-
   entryListEl.innerHTML = '';
-
   allEntries.forEach(entry => {
     const raw = calcRawHours(entry.start, entry.end, entry.lunch);
-    const { reg: eReg, ot: eOT } = currentOtRule === 'daily'
-      ? calcOT_Daily([entry])
-      : { reg: Math.min(raw, 8), ot: Math.max(0, raw - 8) };
-
+    const { ot: eOT } = currentOtRule === 'daily' ? calcOT_Daily([entry]) : { ot: Math.max(0, raw-8) };
     const inRange = entry.date >= range.from && entry.date <= range.to;
     const dateStr = new Date(entry.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
-
     const div = document.createElement('div');
-    div.className = 'log-entry' + (inRange ? '' : ' ' );
-
+    div.className = 'log-entry';
     div.innerHTML = `
       <div class="log-entry-info">
         <div class="log-entry-date">${dateStr}${!inRange ? ' · outside period' : ''}</div>
         <div class="log-entry-job">${entry.job || '—'}</div>
         <div class="log-entry-hours">
-          ${decimalToHM(raw)} total
-          · ${entry.timekeeper || 'no timekeeper'}
-          · ${entry.lunch ? 'lunch taken' : 'no lunch'}
+          ${decimalToHM(raw)} total · ${entry.timekeeper || 'no timekeeper'} · ${entry.lunch ? 'lunch taken' : 'no lunch'}
           ${eOT > 0 ? `<span class="ot-badge">+${decimalToHM(eOT)} OT</span>` : ''}
         </div>
       </div>
@@ -489,34 +515,19 @@ function renderAll() {
         <button class="icon-btn edit-btn" data-id="${entry.id}" title="Edit">✏️</button>
         <button class="icon-btn del-btn"  data-id="${entry.id}" title="Delete">🗑️</button>
       </div>`;
-
-    div.querySelector('.edit-btn').addEventListener('click', () => {
-      const e = GlovesOn.Log.getAll().find(x => x.id === entry.id);
-      if (e) populateForm(e);
-    });
-    div.querySelector('.del-btn').addEventListener('click', function() {
-      armDelete(entry.id, this);
-    });
-
+    div.querySelector('.edit-btn').addEventListener('click', () => { const e = GlovesOn.Log.getAll().find(x => x.id === entry.id); if (e) populateForm(e); });
+    div.querySelector('.del-btn').addEventListener('click', function() { armDelete(entry.id, this); });
     entryListEl.appendChild(div);
   });
 }
 
 /* ---- INIT ---- */
-function initLogPrefsUI() {
-  document.querySelectorAll('[data-period]').forEach(b => {
-    b.classList.toggle('active', b.dataset.period === currentPayPeriod);
-  });
-  document.querySelectorAll('[data-ot]').forEach(b => {
-    b.classList.toggle('active', b.dataset.ot === currentOtRule);
-  });
-  customRangeWrap.classList.toggle('hidden', currentPayPeriod !== 'custom');
-}
-
+document.querySelectorAll('[data-ot]').forEach(b => b.classList.toggle('active', b.dataset.ot === currentOtRule));
 resetForm();
-initLogPrefsUI();
+payPeriodCfg ? showLockedState() : showSetupState();
 renderAll();
 </script>
+
 
 <script>
 (function() {

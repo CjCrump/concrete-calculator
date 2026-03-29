@@ -73,6 +73,14 @@ Old key `gloveson_fieldcalc_settings_v1` is automatically migrated on first load
 # Or drag-and-drop the folder to Netlify Drop
 ```
 
+## Roadmap / Future Ideas
+
+### Hourly Wage & Paycheck Estimator (Daily Log v2)
+- Add optional hourly wage field to pay period setup (saved per user, never required)
+- Estimated gross pay displayed on the summary card: regular hours × rate + OT hours × (rate × 1.5)
+- Estimated check display (gross only — no tax math, clearly labeled "estimate before deductions")
+- Could expand to: multiple crew members on one log, export/share summary as text
+
 ---
 
 ## Built By

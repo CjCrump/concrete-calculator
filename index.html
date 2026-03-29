@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#0c1220" />
   <meta name="description" content="GlovesOn — Jobsite Companion. Built for the jobsite. Calculator, converter, daily log, and notes — no account, no cloud." />
   <title>GlovesOn — Jobsite Companion</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <div class="landing">
 
-  <!-- ============================================================
-       HERO
-  ============================================================ -->
+  <!-- HERO -->
   <section class="landing-hero">
+    <div class="landing-stripe-bar"></div>
 
     <div class="landing-wordmark">
-      <div class="landing-wordmark-name">Gloves<span>On</span></div>
-      <div class="landing-wordmark-sub">Jobsite Companion</div>
+      <div class="landing-wordmark-name">Gloves<span class="silver">On</span></div>
+      <div class="landing-wordmark-badge">Jobsite Companion</div>
     </div>
 
     <p class="landing-tagline">Built for the jobsite.</p>
@@ -27,57 +27,93 @@
     <div class="landing-ctas">
       <a href="calculator.html" class="landing-cta-primary">🧮 Calculator</a>
       <a href="converter.html"  class="landing-cta-secondary">📐 Converter</a>
+      <a href="log.html"        class="landing-cta-secondary">📋 Daily Log</a>
+      <a href="notes.html"      class="landing-cta-secondary">📝 Notes</a>
     </div>
 
   </section>
 
-  <!-- ============================================================
-       FEATURE GRID
-  ============================================================ -->
-  <section class="landing-features">
-
-    <div class="landing-features-title">Everything on the job</div>
-
-    <div class="feature-grid">
-      <a href="calculator.html" class="feature-tile linked">
-        <div class="feature-tile-icon">🧮</div>
-        <div class="feature-tile-label">Calculator</div>
+  <!-- TOOLS -->
+  <section class="landing-tools">
+    <div class="landing-section-eyebrow">Everything on the job</div>
+    <div class="landing-section-title">Your full jobsite toolkit</div>
+    <div class="tools-grid">
+      <a href="calculator.html" class="tool-card">
+        <div class="tool-card-icon">🧮</div>
+        <div class="tool-card-name">Calculator</div>
+        <div class="tool-card-desc">Concrete, curb, asphalt &amp; more</div>
       </a>
-      <a href="converter.html" class="feature-tile linked">
-        <div class="feature-tile-icon">📐</div>
-        <div class="feature-tile-label">Converter</div>
+      <a href="converter.html" class="tool-card">
+        <div class="tool-card-icon">📐</div>
+        <div class="tool-card-name">Converter</div>
+        <div class="tool-card-desc">Units, fractions &amp; measurements</div>
       </a>
-      <a href="log.html" class="feature-tile linked">
-        <div class="feature-tile-icon">📋</div>
-        <div class="feature-tile-label">Daily Log</div>
+      <a href="log.html" class="tool-card">
+        <div class="tool-card-icon">📋</div>
+        <div class="tool-card-name">Daily Log</div>
+        <div class="tool-card-desc">Track hours &amp; pay periods</div>
       </a>
-      <a href="notes.html" class="feature-tile linked">
-        <div class="feature-tile-icon">📝</div>
-        <div class="feature-tile-label">Notes</div>
+      <a href="notes.html" class="tool-card">
+        <div class="tool-card-icon">📝</div>
+        <div class="tool-card-name">Notes</div>
+        <div class="tool-card-desc">Quick jobsite notes, always saved</div>
       </a>
-      <div class="feature-tile">
-        <div class="feature-tile-icon">📴</div>
-        <div class="feature-tile-label">Works Offline</div>
-      </div>
-      <div class="feature-tile">
-        <div class="feature-tile-icon">🔒</div>
-        <div class="feature-tile-label">No Account</div>
-      </div>
     </div>
-
   </section>
 
-  <!-- ============================================================
-       TRUST LINE
-  ============================================================ -->
-  <p class="landing-trust">
-    <strong>No account. No cloud.</strong><br />
-    Your data stays on your device — always.
-  </p>
+  <div class="landing-divider"></div>
 
-  <!-- ============================================================
-       FOOTER
-  ============================================================ -->
+  <!-- WHY -->
+  <section class="landing-why">
+    <div class="landing-why-inner">
+      <div class="landing-section-eyebrow">Why GlovesOn</div>
+      <div class="landing-section-title">Built different</div>
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="why-icon green">📴</div>
+          <div>
+            <div class="why-text-title">Works Offline</div>
+            <div class="why-text-desc">No signal? No problem. Everything runs on your device.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon orange">🔒</div>
+          <div>
+            <div class="why-text-title">No Account</div>
+            <div class="why-text-desc">No login, no cloud, no tracking. Your data stays yours.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon silver">⚡</div>
+          <div>
+            <div class="why-text-title">Instant &amp; Fast</div>
+            <div class="why-text-desc">Loads in a second. Built lean for real jobsite conditions.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon green">🧰</div>
+          <div>
+            <div class="why-text-title">Built for Tradespeople</div>
+            <div class="why-text-desc">Real units, real math. No fluff, no filler.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="landing-divider"></div>
+
+  <!-- TRUST -->
+  <div class="landing-trust">
+    <div class="trust-badges">
+      <span class="trust-badge">📴 Works Offline</span>
+      <span class="trust-badge">🔒 No Account Required</span>
+      <span class="trust-badge">☁️ No Cloud</span>
+      <span class="trust-badge">🔐 Data Stays On Device</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
   <footer class="landing-footer">
     <div class="landing-footer-version">GlovesOn v1.0</div>
     <div class="landing-footer-credit">
